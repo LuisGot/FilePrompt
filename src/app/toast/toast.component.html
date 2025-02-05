@@ -1,0 +1,10 @@
+<div id="toast-container" class="fixed bottom-5 left-5 space-y-2 z-50">
+	<div
+		*ngFor="let toast of toastService.toasts()"
+		(click)="remove(toast)"
+		class="toast bg-darkprimary text-lightprimary px-4 py-3 rounded-lg cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl hover:bg-neutral-700 flex items-center gap-2 max-w-md"
+	>
+		<img src="assets/icons/info.svg" alt="info" class="w-5 h-5" />
+		<span>{{ toast }}</span>
+	</div>
+</div>

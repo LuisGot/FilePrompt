@@ -1,0 +1,43 @@
+<!-- App Component Template -->
+<app-header
+	[showComposer]="showComposer()"
+	(selectFolder)="onSelectFolder()"
+	(reloadFolder)="onReloadFolder()"
+	(toggleComposer)="onToggleComposer()"
+></app-header>
+
+<main class="flex">
+	<!-- File View Section -->
+	<section
+		id="file-view"
+		[ngClass]="{ 'w-1/2': showComposer(), 'w-full': !showComposer() }"
+		class="border-r border-darkprimary p-6 overflow-y-auto transition-all"
+	>
+		<div id="file-view-header" class="mb-6 sticky top-0 py-2 z-40">
+			<button
+				(click)="toggleAll()"
+				class="bg-darkprimary text-lightprimary px-4 py-2 rounded-lg hover:bg-neutral-700 transition-all duration-200 flex items-center gap-2 shadow-none hover:shadow-md"
+			>
+				<img src="assets/icons/file.svg" alt="file icon" class="w-5 h-5" />
+				<span>Toggle All</span>
+			</button>
+		</div>
+		<app-file-tree [nodes]="fileTree()"></app-file-tree>
+	</section>
+
+	<!-- Prompt Composer Section -->
+	<section
+		*ngIf="showComposer()"
+		id="prompt-composer"
+		class="w-1/2 p-6 flex flex-col bg-darkbg"
+	>
+		<app-prompt-composer
+			[promptFormat]="promptFormat"
+			[fileFormat]="fileFormat"
+			(copyPrompt)="onCopyPrompt()"
+		></app-prompt-composer>
+	</section>
+</main>
+
+<!-- Toast Notifications -->
+<app-toast></app-toast>
