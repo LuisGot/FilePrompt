@@ -1,0 +1,22 @@
+/* Added to prevent overall page scrolling */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Ensure that toast notifications are fixed and do not affect layout */
+app-toast {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+/* Existing Tailwind directives or other styles below */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

@@ -1,53 +1,83 @@
 <div id="composer-content" class="flex-1 space-y-6">
-	<div class="composer-section">
-		<h3
-			class="text-lg font-semibold mb-3 flex items-center gap-2 text-lightprimary"
-		>
-			<img src="assets/icons/settings.svg" alt="settings" class="w-5 h-5" />
-			Prompt Format
-		</h3>
-		<textarea
-			[(ngModel)]="localPromptFormat"
-			rows="10"
-			placeholder="Enter full content format here..."
-			class="w-full bg-darkprimary rounded-lg p-4 resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-md hover:shadow-lg text-lightprimary placeholder-gray-400"
-		></textarea>
-		<p class="text-sm mt-2 text-neutral-400">
-			Placeholders:
-			<code class="bg-darkprimary px-2 py-1 rounded">{{'{{files}}'}}</code>
-		</p>
-	</div>
-	<hr class="border-darkprimary opacity-50" />
-	<div class="composer-section">
-		<h3
-			class="text-lg font-semibold mb-3 flex items-center gap-2 text-lightprimary"
-		>
-			<img src="assets/icons/file.svg" alt="file" class="w-5 h-5" />
-			File Format
-		</h3>
+  <div class="composer-section">
+    <h3
+      class="text-lg font-semibold mb-3 flex items-center gap-2 text-lightprimary"
+    >
+      <img src="assets/icons/settings.svg" alt="settings" class="w-5 h-5" />
+      Prompt Format
+    </h3>
+    <textarea
+      [(ngModel)]="localPromptFormat"
+      (ngModelChange)="onPromptFormatChange()"
+      rows="9"
+      placeholder="Enter full content format here..."
+      class="w-full bg-darkprimary rounded-lg p-4 resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-md hover:shadow-lg text-lightprimary placeholder-gray-400"
+    ></textarea>
+    <p class="text-sm mt-2 text-neutral-400">
+      Placeholders:
+      <code class="bg-darkprimary px-2 py-1 rounded">{{'{{files}}'}}</code>
+    </p>
+  </div>
+  <hr class="border-darkprimary opacity-50" />
+  <div class="composer-section">
+    <h3
+      class="text-lg font-semibold mb-3 flex items-center gap-2 text-lightprimary"
+    >
+      <img src="assets/icons/file.svg" alt="file" class="w-5 h-5" />
+      File Format
+    </h3>
 
-		<textarea
-			[(ngModel)]="localFileFormat"
-			rows="10"
-			placeholder="Enter file copy format here..."
-			class="w-full bg-darkprimary rounded-lg p-4 resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-md hover:shadow-lg text-lightprimary placeholder-gray-400"
-		></textarea>
-		<p class="text-sm mt-2 text-neutral-400">
-			Placeholders:
-			<code class="bg-darkprimary px-2 py-1 rounded">{{'{{file_name}}'}}</code>,
-			<code class="bg-darkprimary px-2 py-1 rounded"
-				>{{'{{file_content}}'}}</code
-			>,
-			<code class="bg-darkprimary px-2 py-1 rounded">{{'{{file_path}}'}}</code>
-		</p>
-	</div>
+    <textarea
+      [(ngModel)]="localFileFormat"
+      (ngModelChange)="onFileFormatChange()"
+      rows="9"
+      placeholder="Enter file copy format here..."
+      class="w-full bg-darkprimary rounded-lg p-4 resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-md hover:shadow-lg text-lightprimary placeholder-gray-400"
+    ></textarea>
+    <p class="text-sm mt-2 text-neutral-400">
+      Placeholders:
+      <code class="bg-darkprimary px-2 py-1 rounded">{{'{{file_name}}'}}</code>,
+      <code class="bg-darkprimary px-2 py-1 rounded"
+        >{{'{{file_content}}'}}</code
+      >,
+      <code class="bg-darkprimary px-2 py-1 rounded">{{'{{file_path}}'}}</code>
+    </p>
+  </div>
 </div>
 <div id="composer-footer" class="mt-6 flex justify-end">
-	<button
-		(click)="onCopyPrompt()"
-		class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg font-medium"
-	>
-		<img src="assets/icons/copy.svg" alt="copy icon" class="w-5 h-5" />
-		<span>Copy Prompt</span>
-	</button>
+  <button
+    (click)="onCopyPrompt()"
+    [disabled]="isCopying"
+    class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg font-medium disabled:opacity-70 disabled:cursor-wait"
+  >
+    <div *ngIf="isCopying" class="animate-spin w-5 h-5">
+      <svg
+        class="w-5 h-5"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+    </div>
+    <img
+      *ngIf="!isCopying"
+      src="assets/icons/copy.svg"
+      alt="copy icon"
+      class="w-5 h-5"
+    />
+    <span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
+  </button>
 </div>

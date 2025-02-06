@@ -1,21 +1,24 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+// Import required dependencies
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
 use arboard::Clipboard;
 
+// Struct representing a file or folder node in the directory tree
 #[derive(Serialize)]
 struct FileNode {
     #[serde(rename = "type")]
-    node_type: String,
-    name: String,
-    path: String,
-    children: Option<Vec<FileNode>>,
+    node_type: String,  // "file" or "folder"
+    name: String,       // Name of the file/folder
+    path: String,       // Full path to the file/folder
+    children: Option<Vec<FileNode>>, // Sub-files/folders for folders, None for files
 }
 
+// Recursively builds a tree structure of files and folders starting from the given directory
 fn get_directory_tree(dir_path: &str) -> Vec<FileNode> {
     let mut results = Vec::new();
     if let Ok(entries) = fs::read_dir(dir_path) {
@@ -24,6 +27,7 @@ fn get_directory_tree(dir_path: &str) -> Vec<FileNode> {
             let filename = entry.file_name().into_string().unwrap_or_default();
             if let Ok(metadata) = entry.metadata() {
                 if metadata.is_dir() {
+                    // Recursively get children for directories
                     let children = get_directory_tree(path.to_str().unwrap_or(""));
                     results.push(FileNode {
                         node_type: "folder".into(),
@@ -32,6 +36,7 @@ fn get_directory_tree(dir_path: &str) -> Vec<FileNode> {
                         children: Some(children),
                     });
                 } else {
+                    // Add files as leaf nodes
                     results.push(FileNode {
                         node_type: "file".into(),
                         name: filename,
@@ -57,6 +62,7 @@ fn get_directory_tree(dir_path: &str) -> Vec<FileNode> {
     results
 }
 
+// Tauri command to open a folder selection dialog
 #[tauri::command]
 async fn select_folder(window: tauri::Window) -> Result<Option<String>, String> {
     // Run the blocking dialog code on a separate thread.
@@ -75,16 +81,19 @@ async fn select_folder(window: tauri::Window) -> Result<Option<String>, String> 
     Ok(folder.map(|p| p.to_string_lossy().to_string()))
 }
 
+// Tauri command to get the directory structure starting from a given path
 #[tauri::command]
 async fn get_directory_structure(folder_path: String) -> Result<Vec<FileNode>, String> {
     Ok(get_directory_tree(&folder_path))
 }
 
+// Tauri command to read the contents of a file
 #[tauri::command]
 async fn read_file(file_path: String) -> Result<String, String> {
     fs::read_to_string(&file_path).map_err(|e| e.to_string())
 }
 
+// Tauri command to copy text to the system clipboard
 #[tauri::command]
 async fn copy_to_clipboard(text: String) -> Result<bool, String> {
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
@@ -92,6 +101,7 @@ async fn copy_to_clipboard(text: String) -> Result<bool, String> {
     Ok(true)
 }
 
+// Initialize and run the Tauri application
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
