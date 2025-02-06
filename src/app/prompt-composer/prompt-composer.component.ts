@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 
@@ -8,7 +8,7 @@ import { CommonModule } from "@angular/common";
   imports: [FormsModule, CommonModule],
   templateUrl: "./prompt-composer.component.html",
 })
-export class PromptComposerComponent {
+export class PromptComposerComponent implements OnInit {
   @Input() fileFormat!: () => string;
   @Input() promptFormat!: () => string;
   @Input() isCopying: boolean = false;
@@ -20,6 +20,7 @@ export class PromptComposerComponent {
   localPromptFormat: string = "";
 
   ngOnInit(): void {
+    // Initialize local copies from the provided functions
     this.localFileFormat = this.fileFormat();
     this.localPromptFormat = this.promptFormat();
   }

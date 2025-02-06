@@ -14,19 +14,19 @@ export class HeaderComponent {
   @Output() toggleComposer = new EventEmitter<void>();
   @Output() toggleAll = new EventEmitter<void>();
 
-  onSelectFolder() {
+  onSelectFolder(): void {
     this.selectFolder.emit();
   }
 
-  onReloadFolder() {
+  onReloadFolder(): void {
     this.reloadFolder.emit();
   }
 
-  onToggleComposer() {
+  onToggleComposer(): void {
     this.toggleComposer.emit();
   }
 
-  onToggleAll() {
+  onToggleAll(): void {
     this.toggleAll.emit();
   }
 }

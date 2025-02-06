@@ -1,6 +1,9 @@
 import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
+/**
+ * A simple loading spinner component to indicate background activity.
+ */
 @Component({
   selector: "app-loading-spinner",
   standalone: true,

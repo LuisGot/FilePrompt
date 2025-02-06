@@ -1,24 +1,38 @@
 import { Injectable } from "@angular/core";
 import { invoke } from "@tauri-apps/api/tauri";
 
+/**
+ * The TauriService wraps Tauri API calls.
+ */
 @Injectable({
-	providedIn: "root",
+  providedIn: "root",
 })
 export class TauriService {
-	// Note: The command name is now "select_folder"
-	selectFolder(): Promise<string | null> {
-		return invoke("select_folder");
-	}
+  /**
+   * Opens a folder selection dialog.
+   */
+  selectFolder(): Promise<string | null> {
+    return invoke("select_folder");
+  }
 
-	getDirectoryStructure(folderPath: string): Promise<any> {
-		return invoke("get_directory_structure", { folderPath });
-	}
+  /**
+   * Retrieves the directory structure starting from a given folder.
+   */
+  getDirectoryStructure(folderPath: string): Promise<any> {
+    return invoke("get_directory_structure", { folderPath });
+  }
 
-	readFile(filePath: string): Promise<string> {
-		return invoke("read_file", { filePath });
-	}
+  /**
+   * Reads the content of a file.
+   */
+  readFile(filePath: string): Promise<string> {
+    return invoke("read_file", { filePath });
+  }
 
-	copyToClipboard(text: string): Promise<void> {
-		return invoke("copy_to_clipboard", { text });
-	}
+  /**
+   * Copies text to the clipboard.
+   */
+  copyToClipboard(text: string): Promise<void> {
+    return invoke("copy_to_clipboard", { text });
+  }
 }

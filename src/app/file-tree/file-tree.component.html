@@ -1,3 +1,7 @@
+<!--
+  Recursive file tree view template.
+  Uses structural directives to display folder and file nodes.
+-->
 <ul class="block w-full space-y-2 bg-darkbg text-lightprimary">
   <li *ngFor="let node of nodes" class="tree-item block w-full">
     <!-- Folder Node -->
@@ -45,7 +49,7 @@
           type="checkbox"
           [(ngModel)]="node.selected"
           [disabled]="!isTextFile(node.name)"
-          class="file-checkbox w-4 h-4 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="file-checkbox w-4 h-4 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
         />
         <img src="assets/icons/file.svg" alt="file icon" class="w-6 h-6" />
         <span
@@ -61,13 +65,13 @@
         <button
           (click)="onFileCopy(node)"
           [disabled]="!isTextFile(node.name)"
-          class="copy-btn bg-darkprimary text-lightprimary px-3 py-1 rounded-lg hover:bg-neutral-700 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-darkprimary"
+          class="copy-btn bg-darkprimary text-lightprimary px-3 py-1 rounded-lg hover:bg-neutral-700 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
         >
           <img src="assets/icons/copy.svg" alt="copy icon" class="w-6 h-6" />
         </button>
       </div>
     </div>
-    <!-- Recursive rendering for folder children if expanded -->
+    <!-- Recursive rendering for folder children -->
     <div
       *ngIf="node.type === 'folder' && node.expanded && node.children"
       class="child-container ml-4 overflow-hidden transition-all duration-500 ease-in-out"
