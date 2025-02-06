@@ -23,7 +23,4 @@ export class HeaderComponent {
   onToggleComposer(): void {
     this.toggleComposer.emit();
   }
-  onToggleAll(): void {
-    this.toggleAll.emit();
-  }
 }

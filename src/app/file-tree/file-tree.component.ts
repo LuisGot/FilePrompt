@@ -59,19 +59,48 @@ export class FileTreeComponent {
     }
   }
 
-  onFolderSelect(node: FileNode, checked: boolean): void {
+  async onFolderSelect(node: FileNode, checked: boolean): Promise<void> {
     node.selected = checked;
+
+    // Recursively load and select all children
+    if (checked) {
+      await this.loadAndSelectAllChildren(node);
+    } else {
+      // When deselecting, we can just update existing children
+      if (node.children) {
+        this.updateChildrenSelection(node.children, checked);
+      }
+    }
+  }
+
+  /** Recursively loads and selects all nested children */
+  private async loadAndSelectAllChildren(node: FileNode): Promise<void> {
+    // Load immediate children if not loaded
+    if (!node.children || node.children.length === 0) {
+      try {
+        node.children = await this.tauri.getDirectoryChildren(node.path);
+      } catch (error) {
+        console.error("Error loading folder children", error);
+        return;
+      }
+    }
+
+    // Select all immediate children
     if (node.children) {
-      this.updateChildrenSelection(node.children, checked);
+      for (const child of node.children) {
+        child.selected = true;
+        // If it's a folder, recursively load and select its children
+        if (child.type === "folder") {
+          await this.loadAndSelectAllChildren(child);
+        }
+      }
     }
   }
 
   /** Recursively updates selection for child nodes. */
   private updateChildrenSelection(nodes: FileNode[], checked: boolean): void {
     for (const node of nodes) {
-      if (this.isTextFile(node.name)) {
-        node.selected = checked;
-      }
+      node.selected = checked;
       if (node.children) {
         this.updateChildrenSelection(node.children, checked);
       }

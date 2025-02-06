@@ -164,7 +164,7 @@ async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, Stri
             .file_format
             .replace("{{file_name}}", &file.name)
             .replace("{{file_content}}", &content)
-            .replace("\\src-tauri\\src\\main.rs", &relative);
+            .replace("{{file_path}}", &relative);
         aggregated.push_str(&formatted);
     }
     let final_output = args.prompt_format.replace("{{files}}", &aggregated);
@@ -193,7 +193,7 @@ async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
         .file_format
         .replace("{{file_name}}", &args.file.name)
         .replace("{{file_content}}", &content)
-        .replace("\\src-tauri\\src\\main.rs", &relative);
+        .replace("{{file_path}}", &relative);
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
     clipboard.set_text(formatted).map_err(|e| e.to_string())?;
     Ok(true)

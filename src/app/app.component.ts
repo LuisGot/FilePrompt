@@ -95,13 +95,6 @@ export class AppComponent implements OnInit {
     this.showComposer.update((show) => !show);
   }
 
-  toggleAll(): void {
-    const tree = this.fileTree();
-    const allSelected = this.areAllFilesSelected(tree);
-    this.toggleSelectionRecursive(tree, !allSelected);
-    this.fileTree.update((nodes) => [...nodes]);
-  }
-
   private toggleSelectionRecursive(nodes: FileNode[], selected: boolean): void {
     nodes.forEach((node) => {
       node.selected = selected;
@@ -173,10 +166,6 @@ export class AppComponent implements OnInit {
   onIndividualCopy(file: FileNode): void {
     if (!this.currentFolderPath) {
       this.toast.addToast("No folder selected");
-      return;
-    }
-    if (!file.selected) {
-      this.toast.addToast("File not selected");
       return;
     }
     this.tauri
