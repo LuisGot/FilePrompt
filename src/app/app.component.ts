@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from "@angular/core";
-import { CommonModule } from "@angular/common";
+import { signal } from "@angular/core";
 import { HeaderComponent } from "./header/header.component";
 import { FileTreeComponent, FileNode } from "./file-tree/file-tree.component";
 import { PromptComposerComponent } from "./prompt-composer/prompt-composer.component";
@@ -7,30 +7,28 @@ import { ToastComponent } from "./toast/toast.component";
 import { ToastService } from "./toast.service";
 import { TauriService } from "./tauri.service";
 import { LoadingSpinnerComponent } from "./loading-spinner/loading-spinner.component";
-import { signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
 /**
- * Main application component that coordinates file tree loading,
- * prompt composition, and clipboard copying.
+ * Main application component coordinating file tree loading, prompt composition, and clipboard copying.
  */
 @Component({
   selector: "app-root",
   standalone: true,
   imports: [
-    CommonModule,
     HeaderComponent,
     FileTreeComponent,
     PromptComposerComponent,
     ToastComponent,
     LoadingSpinnerComponent,
+    CommonModule,
   ],
   templateUrl: "./app.component.html",
 })
 export class AppComponent implements OnInit {
-  // Signals for reactive state management
   fileFormat = signal<string>(
     localStorage.getItem("fileFormat") ||
-      "File: {{file_name}}\nPath: {{file_path}}\nContent:\n{{file_content}}\n\n"
+      "File: {{file_name}}\nPath: \\src\\app\\app.component.ts\nContent:\n{{file_content}}\n\n"
   );
   promptFormat = signal<string>(
     localStorage.getItem("promptFormat") || "{{files}}"
@@ -47,7 +45,7 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Initialization logic if needed
+    // Additional initialization logic if needed.
   }
 
   onSelectFolder(): void {
@@ -78,14 +76,10 @@ export class AppComponent implements OnInit {
     }
   }
 
-  /**
-   * Loads and processes the directory structure from the selected folder.
-   */
-  loadDirectoryStructure(folder: string): void {
+  private loadDirectoryStructure(folder: string): void {
     this.tauri
       .getDirectoryStructure(folder)
       .then((tree: FileNode[]) => {
-        // (Optional) You can perform any client‑side post‑processing here.
         this.fileTree.set(tree);
       })
       .catch((error) => {
@@ -100,62 +94,56 @@ export class AppComponent implements OnInit {
     this.showComposer.update((show) => !show);
   }
 
-  /**
-   * Toggles selection of all files in the tree.
-   */
   toggleAll(): void {
     const tree = this.fileTree();
-    const toggleRecursive = (nodes: FileNode[], newVal: boolean): void => {
-      nodes.forEach((node) => {
-        node.selected = newVal;
-        if (node.children) {
-          toggleRecursive(node.children, newVal);
-        }
-      });
-    };
-    const allSelected = this.allFilesSelected(tree);
-    toggleRecursive(tree, !allSelected);
+    const allSelected = this.areAllFilesSelected(tree);
+    this.toggleSelectionRecursive(tree, !allSelected);
     this.fileTree.update((nodes) => [...nodes]);
   }
 
-  allFilesSelected(nodes: FileNode[]): boolean {
+  private toggleSelectionRecursive(nodes: FileNode[], selected: boolean): void {
+    nodes.forEach((node) => {
+      node.selected = selected;
+      if (node.children) {
+        this.toggleSelectionRecursive(node.children, selected);
+      }
+    });
+  }
+
+  private areAllFilesSelected(nodes: FileNode[]): boolean {
     let all = true;
-    const checkRecursive = (nodes: FileNode[]): void => {
+    const checkSelection = (nodes: FileNode[]): void => {
       for (const node of nodes) {
         if (node.type === "file" && !node.selected) {
           all = false;
           return;
         }
         if (node.children) {
-          checkRecursive(node.children);
+          checkSelection(node.children);
         }
       }
     };
-    checkRecursive(nodes);
+    checkSelection(nodes);
     return all;
   }
 
-  /**
-   * Copies the prompt generated from selected files to the clipboard.
-   * Now defers the heavy lifting (reading file content and formatting) to the backend.
-   */
   onCopyPrompt(): void {
     if (!this.currentFolderPath) {
       this.toast.addToast("No folder selected");
       return;
     }
     const selectedFiles: { name: string; path: string }[] = [];
-    const collectSelectedFiles = (nodes: FileNode[]): void => {
+    const collectFiles = (nodes: FileNode[]): void => {
       nodes.forEach((node) => {
         if (node.type === "file" && node.selected) {
           selectedFiles.push({ name: node.name, path: node.path });
         }
         if (node.children) {
-          collectSelectedFiles(node.children);
+          collectFiles(node.children);
         }
       });
     };
-    collectSelectedFiles(this.fileTree());
+    collectFiles(this.fileTree());
     if (selectedFiles.length === 0) {
       this.toast.addToast("No files selected");
       return;
@@ -181,10 +169,6 @@ export class AppComponent implements OnInit {
       });
   }
 
-  /**
-   * Handles copying of an individual file.
-   * Now calls the backend to copy the formatted file content.
-   */
   onIndividualCopy(file: FileNode): void {
     if (!this.currentFolderPath) {
       this.toast.addToast("No folder selected");

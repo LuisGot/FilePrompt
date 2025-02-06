@@ -13,7 +13,6 @@ export interface FileNode {
   children?: FileNode[];
   selected?: boolean;
   expanded?: boolean;
-  isTextFile?: boolean;
 }
 
 /**
@@ -29,10 +28,7 @@ export class FileTreeComponent {
   @Input() nodes: FileNode[] = [];
   @Output() fileCopy = new EventEmitter<FileNode>();
 
-  /**
-   * Determines whether the given filename is considered a text file.
-   * @param filename - The name of the file.
-   */
+  /** Returns true if the filename is recognized as a text file. */
   isTextFile(filename: string): boolean {
     const extension = filename.toLowerCase().slice(filename.lastIndexOf("."));
     return !extension || !BLOCKED_FILE_EXTENSIONS.includes(extension);
@@ -43,7 +39,6 @@ export class FileTreeComponent {
   }
 
   onFileCopy(node: FileNode): void {
-    // Only copy if the file is recognized as a text file.
     if (this.isTextFile(node.name)) {
       this.fileCopy.emit(node);
     }
@@ -56,15 +51,13 @@ export class FileTreeComponent {
     }
   }
 
-  /**
-   * Recursively updates the selection status for child nodes.
-   */
+  /** Recursively updates selection for child nodes. */
   private updateChildrenSelection(nodes: FileNode[], checked: boolean): void {
     for (const node of nodes) {
-      if (node.type === "file" && this.isTextFile(node.name)) {
+      if (this.isTextFile(node.name)) {
         node.selected = checked;
-      } else if (node.type === "folder" && node.children) {
-        node.selected = checked;
+      }
+      if (node.children) {
         this.updateChildrenSelection(node.children, checked);
       }
     }

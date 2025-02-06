@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { ToastService } from "../toast.service";
 
 /**
- * The ToastComponent displays temporary notification messages.
+ * Displays temporary notification messages.
  */
 @Component({
   selector: "app-toast",

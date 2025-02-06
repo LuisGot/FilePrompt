@@ -1,6 +1,5 @@
 /**
- * A shared utility module for file extension-related functions.
- * This module centralizes the list of blocked (non-text) file extensions.
+ * Centralized list of blocked (non‑text) file extensions.
  */
 export const BLOCKED_FILE_EXTENSIONS: string[] = [
   // Images
@@ -43,14 +42,14 @@ export const BLOCKED_FILE_EXTENSIONS: string[] = [
   ".xlsx",
   ".ppt",
   ".pptx",
-  // Executables & binaries
+  // Executables
   ".exe",
   ".dll",
   ".so",
   ".dylib",
   ".bin",
   ".dat",
-  // Database files
+  // Databases
   ".db",
   ".sqlite",
   ".mdb",
@@ -59,7 +58,7 @@ export const BLOCKED_FILE_EXTENSIONS: string[] = [
   ".otf",
   ".woff",
   ".woff2",
-  // Other binary formats
+  // Other binaries
   ".class",
   ".pyc",
   ".pyo",

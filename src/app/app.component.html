@@ -1,10 +1,6 @@
-<!--
-  Main application component.
-  The layout splits the view between the file tree and prompt composer (if visible).
--->
-<div class="flex flex-col h-screen overflow-hidden">
+<!-- Main application layout splitting file view and prompt composer -->
+<div class="flex flex-col h-screen overflow-hidden text-lightprimary">
   <app-header
-    class="flex-none"
     [showComposer]="showComposer()"
     (selectFolder)="onSelectFolder()"
     (reloadFolder)="onReloadFolder()"
@@ -16,7 +12,7 @@
     <!-- File View Section -->
     <section
       id="file-view"
-      [ngClass]="{ 'w-1/2': showComposer(), 'w-full': !showComposer() }"
+      [class]="showComposer() ? 'w-1/2' : 'w-full'"
       class="border-r border-darkprimary p-6 overflow-y-auto h-full min-h-0 transition-all relative"
     >
       <div *ngIf="isLoadingFolder()" class="h-[calc(100vh-10rem)]">

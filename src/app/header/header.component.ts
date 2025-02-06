@@ -8,7 +8,7 @@ import { CommonModule } from "@angular/common";
   templateUrl: "./header.component.html",
 })
 export class HeaderComponent {
-  @Input() showComposer: boolean = true;
+  @Input() showComposer = true;
   @Output() selectFolder = new EventEmitter<void>();
   @Output() reloadFolder = new EventEmitter<void>();
   @Output() toggleComposer = new EventEmitter<void>();
@@ -17,15 +17,12 @@ export class HeaderComponent {
   onSelectFolder(): void {
     this.selectFolder.emit();
   }
-
   onReloadFolder(): void {
     this.reloadFolder.emit();
   }
-
   onToggleComposer(): void {
     this.toggleComposer.emit();
   }
-
   onToggleAll(): void {
     this.toggleAll.emit();
   }

@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
 /**
- * A simple loading spinner component to indicate background activity.
+ * A simple loading spinner to indicate background activity.
  */
 @Component({
   selector: "app-loading-spinner",
@@ -11,14 +11,14 @@ import { CommonModule } from "@angular/common";
   template: `
     <div class="flex flex-col items-center justify-center h-full">
       <div class="relative w-20 h-20">
-        <div class="absolute top-0 left-0 w-full h-full">
-          <div class="w-20 h-20 border-4 border-indigo-200 rounded-full"></div>
-          <div
-            class="absolute top-0 left-0 w-20 h-20 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"
-          ></div>
-        </div>
+        <div
+          class="absolute inset-0 border-4 border-indigo-200 rounded-full"
+        ></div>
+        <div
+          class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"
+        ></div>
       </div>
-      <p class="mt-4 text-lightprimary text-lg">Loading files...</p>
+      <p class="mt-4 text-lg">Loading files...</p>
     </div>
   `,
 })
