@@ -85,28 +85,7 @@ export class AppComponent implements OnInit {
     this.tauri
       .getDirectoryStructure(folder)
       .then((tree: FileNode[]) => {
-        // Mark files as text files based on extension.
-        const processNodes = (nodes: FileNode[]): void => {
-          nodes.forEach((node) => {
-            if (node.type === "file") {
-              const extension = node.name
-                .toLowerCase()
-                .slice(node.name.lastIndexOf("."));
-              node.isTextFile =
-                !extension ||
-                !(
-                  // Reuse the same logic as in the shared utility
-                  // (BLOCKED_FILE_EXTENSIONS is used in file-tree.component.ts)
-                  (extension in {}) // (if not found, treat as text file)
-                );
-              // In practice, you can import and use BLOCKED_FILE_EXTENSIONS here as well.
-            }
-            if (node.children) {
-              processNodes(node.children);
-            }
-          });
-        };
-        processNodes(tree);
+        // (Optional) You can perform any client‑side post‑processing here.
         this.fileTree.set(tree);
       })
       .catch((error) => {
@@ -158,14 +137,18 @@ export class AppComponent implements OnInit {
 
   /**
    * Copies the prompt generated from selected files to the clipboard.
+   * Now defers the heavy lifting (reading file content and formatting) to the backend.
    */
   onCopyPrompt(): void {
-    this.isCopying.set(true);
-    const selectedFiles: FileNode[] = [];
+    if (!this.currentFolderPath) {
+      this.toast.addToast("No folder selected");
+      return;
+    }
+    const selectedFiles: { name: string; path: string }[] = [];
     const collectSelectedFiles = (nodes: FileNode[]): void => {
       nodes.forEach((node) => {
         if (node.type === "file" && node.selected) {
-          selectedFiles.push(node);
+          selectedFiles.push({ name: node.name, path: node.path });
         }
         if (node.children) {
           collectSelectedFiles(node.children);
@@ -175,37 +158,20 @@ export class AppComponent implements OnInit {
     collectSelectedFiles(this.fileTree());
     if (selectedFiles.length === 0) {
       this.toast.addToast("No files selected");
-      this.isCopying.set(false);
       return;
     }
-    let aggregatedContent = "";
-    const promises = selectedFiles.map((file) =>
-      this.tauri.readFile(file.path).then((content: string) => {
-        const relativePath = this.currentFolderPath
-          ? file.path.replace(this.currentFolderPath, "")
-          : file.path;
-        const formatted = this.fileFormat().replace(
-          /{{(file_name|file_content|file_path)}}/g,
-          (_, token: string) => {
-            if (token === "file_name") return file.name;
-            if (token === "file_content") return content;
-            if (token === "file_path") return relativePath;
-            return "";
-          }
-        );
-        aggregatedContent += formatted;
-      })
-    );
-    Promise.all(promises)
-      .then(() => {
-        const finalOutput = this.promptFormat().replace(
-          /{{files}}/g,
-          aggregatedContent
-        );
-        return this.tauri.copyToClipboard(finalOutput);
-      })
-      .then(() => {
-        this.toast.addToast("Copied prompt to clipboard!");
+    this.isCopying.set(true);
+    this.tauri
+      .generateAndCopyPrompt(
+        this.currentFolderPath,
+        selectedFiles,
+        this.fileFormat(),
+        this.promptFormat()
+      )
+      .then((result: boolean) => {
+        if (result) {
+          this.toast.addToast("Copied prompt to clipboard!");
+        }
       })
       .catch((error) => {
         this.toast.addToast("Error copying to clipboard: " + error);
@@ -217,25 +183,31 @@ export class AppComponent implements OnInit {
 
   /**
    * Handles copying of an individual file.
+   * Now calls the backend to copy the formatted file content.
    */
   onIndividualCopy(file: FileNode): void {
-    this.tauri.readFile(file.path).then((content: string) => {
-      const relativePath = this.currentFolderPath
-        ? file.path.replace(this.currentFolderPath, "")
-        : file.path;
-      const formatted = this.fileFormat().replace(
-        /{{(file_name|file_content|file_path)}}/g,
-        (_, token: string) => {
-          if (token === "file_name") return file.name;
-          if (token === "file_content") return content;
-          if (token === "file_path") return relativePath;
-          return "";
+    if (!this.currentFolderPath) {
+      this.toast.addToast("No folder selected");
+      return;
+    }
+    if (!file.selected) {
+      this.toast.addToast("File not selected");
+      return;
+    }
+    this.tauri
+      .copyFile(
+        { name: file.name, path: file.path },
+        this.currentFolderPath,
+        this.fileFormat()
+      )
+      .then((result: boolean) => {
+        if (result) {
+          this.toast.addToast(`Copied ${file.name}`);
         }
-      );
-      this.tauri.copyToClipboard(formatted).then(() => {
-        this.toast.addToast(`Copied ${file.name}`);
+      })
+      .catch((error) => {
+        this.toast.addToast("Error copying file: " + error);
       });
-    });
   }
 
   onFileFormatChange(newFormat: string): void {

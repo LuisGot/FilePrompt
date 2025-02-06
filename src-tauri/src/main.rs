@@ -1,8 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-// Import required dependencies
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use std::fs;
 use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
@@ -101,14 +100,89 @@ async fn copy_to_clipboard(text: String) -> Result<bool, String> {
     Ok(true)
 }
 
-// Initialize and run the Tauri application
+/// --- NEW COMMANDS ---
+
+/// Input structure for a file sent from Angular.
+#[derive(Deserialize)]
+struct FileNodeInput {
+    name: String,
+    path: String,
+}
+
+/// Input structure for generating the prompt.
+/// The attribute `rename_all = "camelCase"` converts JSON keys like "folderPath"
+/// into the snake_case field names below.
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct GeneratePromptArgs {
+    folder_path: String,
+    files: Vec<FileNodeInput>,
+    file_format: String,
+    prompt_format: String,
+}
+
+/// This command reads the content of each selected file,
+/// applies the file formatting, aggregates the formatted texts,
+/// applies the overall prompt format (by replacing `{{files}}`),
+/// and copies the final prompt to the clipboard.
+#[tauri::command]
+async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, String> {
+    let mut aggregated = String::new();
+    for file in args.files {
+        let content = fs::read_to_string(&file.path).map_err(|e| e.to_string())?;
+        // Compute a relative path (if possible)
+        let relative = file.path
+            .strip_prefix(&args.folder_path)
+            .unwrap_or(&file.path)
+            .to_string();
+        let formatted = args.file_format
+            .replace("{{file_name}}", &file.name)
+            .replace("{{file_content}}", &content)
+            .replace("{{file_path}}", &relative);
+        aggregated.push_str(&formatted);
+    }
+    let final_output = args.prompt_format.replace("{{files}}", &aggregated);
+    let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
+    clipboard.set_text(final_output).map_err(|e| e.to_string())?;
+    Ok(true)
+}
+
+/// Input structure for copying a single file.
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CopyFileArgs {
+    file: FileNodeInput,
+    folder_path: String,
+    file_format: String,
+}
+
+/// This command reads a single file’s content,
+/// applies the file formatting, and copies the result to the clipboard.
+#[tauri::command]
+async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
+    let content = fs::read_to_string(&args.file.path).map_err(|e| e.to_string())?;
+    let relative = args.file.path
+        .strip_prefix(&args.folder_path)
+        .unwrap_or(&args.file.path)
+        .to_string();
+    let formatted = args.file_format
+        .replace("{{file_name}}", &args.file.name)
+        .replace("{{file_content}}", &content)
+        .replace("{{file_path}}", &relative);
+    let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
+    clipboard.set_text(formatted).map_err(|e| e.to_string())?;
+    Ok(true)
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             select_folder,
             get_directory_structure,
             read_file,
-            copy_to_clipboard
+            copy_to_clipboard,
+            generate_and_copy_prompt,
+            copy_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

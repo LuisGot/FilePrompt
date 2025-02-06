@@ -12,7 +12,7 @@ export const BLOCKED_FILE_EXTENSIONS: string[] = [
   ".tiff",
   ".webp",
   ".ico",
-  ".svg",
+  ".icns",
   // Audio
   ".mp3",
   ".wav",
