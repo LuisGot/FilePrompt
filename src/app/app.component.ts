@@ -76,11 +76,12 @@ export class AppComponent implements OnInit {
     }
   }
 
+  // Load only the top-level children of the selected folder.
   private loadDirectoryStructure(folder: string): void {
     this.tauri
-      .getDirectoryStructure(folder)
-      .then((tree: FileNode[]) => {
-        this.fileTree.set(tree);
+      .getDirectoryChildren(folder)
+      .then((nodes: FileNode[]) => {
+        this.fileTree.set(nodes);
       })
       .catch((error) => {
         this.toast.addToast("Error loading directory: " + error);

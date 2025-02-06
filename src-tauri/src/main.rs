@@ -1,12 +1,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fs;
 use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
 use arboard::Clipboard;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 struct FileNode {
     #[serde(rename = "type")]
     node_type: String, // "file" or "folder"
@@ -15,6 +15,47 @@ struct FileNode {
     children: Option<Vec<FileNode>>,
 }
 
+/// Helper function: Returns only the immediate children (non‐recursive) of the given directory.
+fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
+    let mut results = Vec::new();
+    if let Ok(entries) = fs::read_dir(dir_path) {
+        for entry in entries.filter_map(Result::ok) {
+            let path = entry.path();
+            let filename = entry.file_name().into_string().unwrap_or_default();
+            if let Ok(metadata) = entry.metadata() {
+                if metadata.is_dir() {
+                    results.push(FileNode {
+                        node_type: "folder".into(),
+                        name: filename,
+                        path: path.to_string_lossy().to_string(),
+                        children: None, // do not load sub–directories here
+                    });
+                } else {
+                    results.push(FileNode {
+                        node_type: "file".into(),
+                        name: filename,
+                        path: path.to_string_lossy().to_string(),
+                        children: None,
+                    });
+                }
+            }
+        }
+    }
+    results.sort_by(|a, b| {
+        if a.node_type != b.node_type {
+            if a.node_type == "folder" {
+                std::cmp::Ordering::Less
+            } else {
+                std::cmp::Ordering::Greater
+            }
+        } else {
+            a.name.to_lowercase().cmp(&b.name.to_lowercase())
+        }
+    });
+    results
+}
+
+/// Returns a full recursive tree of the given directory.
 fn get_directory_tree(dir_path: &str) -> Vec<FileNode> {
     let mut results = Vec::new();
     if let Ok(entries) = fs::read_dir(dir_path) {
@@ -74,6 +115,12 @@ async fn select_folder(window: tauri::Window) -> Result<Option<String>, String> 
 #[tauri::command]
 async fn get_directory_structure(folder_path: String) -> Result<Vec<FileNode>, String> {
     Ok(get_directory_tree(&folder_path))
+}
+
+/// Tauri command: returns only the immediate children of the folder.
+#[tauri::command]
+async fn get_directory_children(folder_path: String) -> Result<Vec<FileNode>, String> {
+    Ok(fetch_directory_children(&folder_path))
 }
 
 #[tauri::command]
@@ -157,6 +204,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             select_folder,
             get_directory_structure,
+            get_directory_children,
             read_file,
             copy_to_clipboard,
             generate_and_copy_prompt,

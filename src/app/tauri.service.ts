@@ -12,8 +12,14 @@ export class TauriService {
     return invoke("select_folder");
   }
 
+  // Old recursive structure (kept for backward compatibility)
   getDirectoryStructure(folderPath: string): Promise<any> {
     return invoke("get_directory_structure", { folderPath });
+  }
+
+  // New command: only get immediate children
+  getDirectoryChildren(folderPath: string): Promise<any> {
+    return invoke("get_directory_children", { folderPath });
   }
 
   readFile(filePath: string): Promise<string> {
