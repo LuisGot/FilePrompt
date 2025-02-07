@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
-import { PresetService, PromptPreset } from "../preset.service";
+import { PresetService, PromptPreset } from "../../services/preset.service";
 
 @Component({
   selector: "app-prompt-composer",

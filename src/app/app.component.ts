@@ -1,12 +1,15 @@
 import { Component, OnInit, Inject } from "@angular/core";
 import { signal } from "@angular/core";
-import { HeaderComponent } from "./header/header.component";
-import { FileTreeComponent, FileNode } from "./file-tree/file-tree.component";
-import { PromptComposerComponent } from "./prompt-composer/prompt-composer.component";
-import { ToastComponent } from "./toast/toast.component";
-import { ToastService } from "./toast.service";
-import { TauriService } from "./tauri.service";
-import { LoadingSpinnerComponent } from "./loading-spinner/loading-spinner.component";
+import { HeaderComponent } from "./components/header/header.component";
+import {
+  FileTreeComponent,
+  FileNode,
+} from "./components/file-tree/file-tree.component";
+import { PromptComposerComponent } from "./components/prompt-composer/prompt-composer.component";
+import { ToastComponent } from "./components/toast/toast.component";
+import { ToastService } from "./services/toast.service";
+import { TauriService } from "./services/tauri.service";
+import { LoadingSpinnerComponent } from "./components/loading-spinner/loading-spinner.component";
 import { CommonModule } from "@angular/common";
 
 /**
@@ -28,7 +31,7 @@ import { CommonModule } from "@angular/common";
 export class AppComponent implements OnInit {
   fileFormat = signal<string>(
     localStorage.getItem("fileFormat") ||
-      "File: {{file_name}}\nPath: \\src\\app\\app.component.ts\nContent:\n{{file_content}}\n\n"
+      "File: {{file_name}}\nPath: {{file_path}}\nContent:\n{{file_content}}\n\n"
   );
   promptFormat = signal<string>(
     localStorage.getItem("promptFormat") || "{{files}}"

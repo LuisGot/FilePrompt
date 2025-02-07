@@ -20,7 +20,7 @@
       (ngModelChange)="onPromptFormatChange()"
       rows="10"
       placeholder="Enter full content format here..."
-      class="w-full bg-darkprimary rounded-lg p-4 resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md placeholder-gray-400"
+      class="w-full bg-darkprimary resize-none rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md placeholder-gray-400"
     ></textarea>
     <p class="text-sm mt-2 text-neutral-400">
       Placeholders:
@@ -41,7 +41,7 @@
       (ngModelChange)="onFileFormatChange()"
       rows="8"
       placeholder="Enter file copy format here..."
-      class="w-full bg-darkprimary rounded-lg p-4 resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md placeholder-gray-400"
+      class="w-full bg-darkprimary resize-none rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md placeholder-gray-400"
     ></textarea>
     <p class="text-sm mt-2 text-neutral-400">
       Placeholders:
@@ -61,7 +61,7 @@
   <button
     (click)="onCopyPrompt()"
     [disabled]="isCopying"
-    class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-700 transition duration-200 flex items-center gap-2 shadow-md font-medium disabled:opacity-70 disabled:cursor-wait"
+    class="bg-indigo-500 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-600 transition duration-200 flex items-center gap-2 shadow-md font-medium disabled:opacity-70 disabled:cursor-wait"
   >
     <ng-container *ngIf="isCopying; else copyIcon">
       <div class="animate-spin w-5 h-5">
@@ -158,7 +158,7 @@
           />
           <button
             (click)="savePreset()"
-            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600"
           >
             Save
           </button>

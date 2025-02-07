@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { BLOCKED_FILE_EXTENSIONS } from "../utils/file-extension.util";
-import { TauriService } from "../tauri.service"; // <== imported for lazy loading
+import { BLOCKED_FILE_EXTENSIONS } from "../../utils/file-extension.util";
+import { TauriService } from "../../services/tauri.service"; // updated import path
 
 /**
  * Represents a file or folder node.
@@ -29,7 +29,6 @@ export class FileTreeComponent {
   @Input() nodes: FileNode[] = [];
   @Output() fileCopy = new EventEmitter<FileNode>();
 
-  // Inject TauriService so that we can load children on-demand
   constructor(private tauri: TauriService) {}
 
   /** Returns true if the filename is recognized as a text file. */
@@ -38,18 +37,16 @@ export class FileTreeComponent {
     return !extension || !BLOCKED_FILE_EXTENSIONS.includes(extension);
   }
 
-  toggleFolder(node: FileNode): void {
+  /** Toggle folder expansion and load children if needed */
+  async toggleFolder(node: FileNode): Promise<void> {
     node.expanded = !node.expanded;
     // Lazy-load folder children if not yet loaded and if expanding
     if (node.expanded && (!node.children || node.children.length === 0)) {
-      this.tauri
-        .getDirectoryChildren(node.path)
-        .then((children: FileNode[]) => {
-          node.children = children;
-        })
-        .catch((error) => {
-          console.error("Error loading folder children", error);
-        });
+      try {
+        node.children = await this.tauri.getDirectoryChildren(node.path);
+      } catch (error) {
+        console.error("Error loading folder children", error);
+      }
     }
   }
 
@@ -66,7 +63,6 @@ export class FileTreeComponent {
     if (checked) {
       await this.loadAndSelectAllChildren(node);
     } else {
-      // When deselecting, we can just update existing children
       if (node.children) {
         this.updateChildrenSelection(node.children, checked);
       }
@@ -75,7 +71,6 @@ export class FileTreeComponent {
 
   /** Recursively loads and selects all nested children */
   private async loadAndSelectAllChildren(node: FileNode): Promise<void> {
-    // Load immediate children if not loaded
     if (!node.children || node.children.length === 0) {
       try {
         node.children = await this.tauri.getDirectoryChildren(node.path);
@@ -84,12 +79,9 @@ export class FileTreeComponent {
         return;
       }
     }
-
-    // Select all immediate children
     if (node.children) {
       for (const child of node.children) {
         child.selected = true;
-        // If it's a folder, recursively load and select its children
         if (child.type === "folder") {
           await this.loadAndSelectAllChildren(child);
         }

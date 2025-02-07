@@ -15,7 +15,7 @@ struct FileNode {
     children: Option<Vec<FileNode>>,
 }
 
-/// Helper function: Returns only the immediate children (non‐recursive) of the given directory.
+/// Helper function: Returns only the immediate children (non‑recursive) of the given directory.
 fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
     let mut results = Vec::new();
     if let Ok(entries) = fs::read_dir(dir_path) {
@@ -28,7 +28,7 @@ fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
                         node_type: "folder".into(),
                         name: filename,
                         path: path.to_string_lossy().to_string(),
-                        children: None, // do not load sub–directories here
+                        children: None,
                     });
                 } else {
                     results.push(FileNode {

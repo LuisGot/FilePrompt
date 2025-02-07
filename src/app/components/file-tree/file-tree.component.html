@@ -21,7 +21,7 @@
         type="checkbox"
         [(ngModel)]="node.selected"
         (ngModelChange)="onFolderSelect(node, $event)"
-        class="w-4 h-4 bg-transparent border border-indigo-600 accent-indigo-600 hover:accent-indigo-700"
+        class="w-4 h-4 bg-transparent border border-indigo-500 accent-indigo-500 hover:accent-indigo-600"
       />
       <img
         src="assets/icons/folder-closed.svg"
@@ -46,7 +46,7 @@
           type="checkbox"
           [(ngModel)]="node.selected"
           [disabled]="!isTextFile(node.name)"
-          class="w-4 h-4 rounded border-0 border-indigo-600 accent-indigo-600 hover:accent-indigo-700"
+          class="w-4 h-4 border-0 border-indigo-500 accent-indigo-500 hover:accent-indigo-600"
         />
         <img src="assets/icons/file.svg" alt="file icon" class="w-6 h-6" />
         <span
