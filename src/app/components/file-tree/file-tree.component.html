@@ -59,12 +59,17 @@
 				</span>
 			</div>
 			<div class="flex items-center gap-2">
-				<!-- Show token count if available -->
+				<!-- Display file metrics using the custom pipes -->
 				<span
-					*ngIf="node.tokenCount !== undefined"
+					*ngIf="
+						node.tokenCount !== undefined &&
+						node.fileSize !== undefined &&
+						node.lineCount !== undefined
+					"
 					class="text-sm text-gray-500"
 				>
-					{{ node.tokenCount }} tokens
+					{{ node.fileSize | fileSize }} | {{ node.lineCount }} lines |
+					{{ node.tokenCount | abbreviateNumber }} tokens
 				</span>
 				<button
 					(click)="onFileCopy(node)"

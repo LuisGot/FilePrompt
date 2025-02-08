@@ -51,4 +51,9 @@ export class TauriService {
 	getTokenCountFromString(content: string): Promise<number> {
 		return invoke("get_token_count_from_string", { content });
 	}
+
+	/** New method: Get file metrics (size, line count, token count) for multiple files concurrently */
+	getFileMetrics(filePaths: string[]): Promise<any> {
+		return invoke("get_file_metrics", { filePaths });
+	}
 }

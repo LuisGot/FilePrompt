@@ -58,40 +58,48 @@
 </div>
 
 <div id="composer-footer" class="mt-6 flex justify-between items-center">
-	<button
-		(click)="onCopyPrompt()"
-		[disabled]="isCopying"
-		class="bg-indigo-500 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-600 transition duration-200 flex items-center gap-2 shadow-md font-medium disabled:opacity-70 disabled:cursor-wait"
-	>
-		<ng-container *ngIf="isCopying; else copyIcon">
-			<div class="animate-spin w-5 h-5">
-				<svg
-					class="w-5 h-5"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-				>
-					<circle
-						class="opacity-25"
-						cx="12"
-						cy="12"
-						r="10"
-						stroke="currentColor"
-						stroke-width="4"
-					></circle>
-					<path
-						class="opacity-75"
-						fill="currentColor"
-						d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-					></path>
-				</svg>
-			</div>
-		</ng-container>
-		<ng-template #copyIcon>
-			<img src="assets/icons/copy.svg" alt="copy icon" class="w-5 h-5" />
-		</ng-template>
-		<span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
-	</button>
+	<div class="flex items-center gap-4">
+		<button
+			(click)="onCopyPrompt()"
+			[disabled]="isCopying"
+			class="bg-indigo-500 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-600 transition duration-200 flex items-center gap-2 shadow-md font-medium disabled:opacity-70 disabled:cursor-wait"
+		>
+			<ng-container *ngIf="isCopying; else copyIcon">
+				<div class="animate-spin w-5 h-5">
+					<svg
+						class="w-5 h-5"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+					>
+						<circle
+							class="opacity-25"
+							cx="12"
+							cy="12"
+							r="10"
+							stroke="currentColor"
+							stroke-width="4"
+						></circle>
+						<path
+							class="opacity-75"
+							fill="currentColor"
+							d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+						></path>
+					</svg>
+				</div>
+			</ng-container>
+			<ng-template #copyIcon>
+				<img src="assets/icons/copy.svg" alt="copy icon" class="w-5 h-5" />
+			</ng-template>
+			<span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
+		</button>
+		<!-- Display aggregated prompt metrics if available -->
+		<div *ngIf="aggregatedMetrics" class="text-sm text-gray-500">
+			{{ aggregatedMetrics.size | fileSize }} |
+			{{ aggregatedMetrics.lineCount }} lines |
+			{{ aggregatedMetrics.tokenCount | abbreviateNumber }} tokens
+		</div>
+	</div>
 </div>
 
 <!-- Presets Modal -->

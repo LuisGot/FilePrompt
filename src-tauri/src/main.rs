@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use arboard::Clipboard;
+use futures::future;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
@@ -104,6 +105,47 @@ async fn get_token_count_from_string(content: String) -> Result<usize, String> {
     Ok(tokens.len())
 }
 
+/// New struct to return file metrics.
+#[derive(Serialize)]
+struct FileMetrics {
+    size: u64,
+    line_count: usize,
+    token_count: usize,
+    file_path: String,
+}
+
+/// New command to get file metrics (size, line count, token count) for multiple files concurrently.
+#[tauri::command]
+async fn get_file_metrics(file_paths: Vec<String>) -> Result<Vec<FileMetrics>, String> {
+    let futures_vec = file_paths.into_iter().map(|path| {
+        tauri::async_runtime::spawn_blocking(move || -> Result<FileMetrics, String> {
+            let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
+            let size = metadata.len();
+            let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+            let line_count = content.lines().count();
+            let bpe = p50k_base().map_err(|e| e.to_string())?;
+            let tokens = bpe.encode_with_special_tokens(&content);
+            let token_count = tokens.len();
+            Ok(FileMetrics {
+                size,
+                line_count,
+                token_count,
+                file_path: path,
+            })
+        })
+    });
+    let results = future::join_all(futures_vec).await;
+    let mut metrics = Vec::new();
+    for res in results {
+        match res {
+            Ok(Ok(metric)) => metrics.push(metric),
+            Ok(Err(e)) => return Err(e),
+            Err(e) => return Err(e.to_string()),
+        }
+    }
+    Ok(metrics)
+}
+
 #[derive(Deserialize)]
 struct FileNodeInput {
     name: String,
@@ -200,7 +242,8 @@ fn main() {
             generate_and_copy_prompt,
             copy_file,
             get_token_count,
-            get_token_count_from_string
+            get_token_count_from_string,
+            get_file_metrics
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

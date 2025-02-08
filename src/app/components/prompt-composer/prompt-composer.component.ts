@@ -2,17 +2,24 @@ import { Component, Input, Output, EventEmitter, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { PresetService, PromptPreset } from "../../services/preset.service";
+import { FileSizePipe } from "../../pipes/file-size.pipe";
+import { AbbreviateNumberPipe } from "../../pipes/abbreviate-number.pipe";
 
 @Component({
 	selector: "app-prompt-composer",
 	standalone: true,
-	imports: [FormsModule, CommonModule],
+	imports: [FormsModule, CommonModule, FileSizePipe, AbbreviateNumberPipe],
 	templateUrl: "./prompt-composer.component.html",
 })
 export class PromptComposerComponent implements OnInit {
 	@Input() fileFormat!: () => string;
 	@Input() promptFormat!: () => string;
 	@Input() isCopying = false;
+	@Input() aggregatedMetrics?: {
+		size: number;
+		lineCount: number;
+		tokenCount: number;
+	};
 	@Output() copyPrompt = new EventEmitter<void>();
 	@Output() fileFormatChange = new EventEmitter<string>();
 	@Output() promptFormatChange = new EventEmitter<string>();
