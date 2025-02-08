@@ -1,10 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use serde::{Serialize, Deserialize};
+use arboard::Clipboard;
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
-use arboard::Clipboard;
+use tiktoken_rs::tiktoken::p50k_base;
 
 #[derive(Serialize, Deserialize)]
 struct FileNode {
@@ -135,6 +136,17 @@ async fn copy_to_clipboard(text: String) -> Result<bool, String> {
     Ok(true)
 }
 
+#[tauri::command]
+async fn get_token_count(file_path: String) -> Result<usize, String> {
+    let content = std::fs::read_to_string(&file_path).map_err(|e| e.to_string())?;
+
+    // Try getting the encoding by name.
+    let bpe = p50k_base().map_err(|e| e.to_string())?;
+
+    let tokens = bpe.encode_with_special_tokens(&content);
+    Ok(tokens.len())
+}
+
 #[derive(Deserialize)]
 struct FileNodeInput {
     name: String,
@@ -169,7 +181,9 @@ async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, Stri
     }
     let final_output = args.prompt_format.replace("{{files}}", &aggregated);
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
-    clipboard.set_text(final_output).map_err(|e| e.to_string())?;
+    clipboard
+        .set_text(final_output)
+        .map_err(|e| e.to_string())?;
     Ok(true)
 }
 
@@ -185,7 +199,8 @@ struct CopyFileArgs {
 async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
     let content = fs::read_to_string(&args.file.path).map_err(|e| e.to_string())?;
     let relative = args
-        .file.path
+        .file
+        .path
         .strip_prefix(&args.folder_path)
         .unwrap_or(&args.file.path)
         .to_string();
@@ -208,7 +223,8 @@ fn main() {
             read_file,
             copy_to_clipboard,
             generate_and_copy_prompt,
-            copy_file
+            copy_file,
+            get_token_count
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

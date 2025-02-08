@@ -16,6 +16,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 rfd = "0.10"          # add an appropriate version for rfd
 arboard = "1.2"       # add an appropriate version for arboard
+tiktoken-rs = "0.1"  # use the appropriate version
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

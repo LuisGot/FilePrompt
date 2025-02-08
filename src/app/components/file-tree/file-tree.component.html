@@ -1,80 +1,90 @@
 <!-- Recursive file tree view template -->
 <ul class="space-y-2 bg-darkbg">
-  <li *ngFor="let node of nodes">
-    <!-- Folder Node -->
-    <div
-      *ngIf="node.type === 'folder'"
-      class="flex items-center gap-2 cursor-pointer px-2 py-1"
-    >
-      <button (click)="toggleFolder(node)">
-        <img
-          [src]="
-            node.expanded
-              ? 'assets/icons/chevron-down.svg'
-              : 'assets/icons/chevron-right.svg'
-          "
-          alt="chevron"
-          class="w-6 h-6"
-        />
-      </button>
-      <input
-        type="checkbox"
-        [(ngModel)]="node.selected"
-        (ngModelChange)="onFolderSelect(node, $event)"
-        class="w-4 h-4 bg-transparent border border-indigo-500 accent-indigo-500 hover:accent-indigo-600"
-      />
-      <img
-        src="assets/icons/folder-closed.svg"
-        alt="folder icon"
-        class="w-6 h-6"
-      />
-      <span
-        class="hover:underline"
-        (click)="onFolderSelect(node, !node.selected)"
-      >
-        {{ node.name }}
-      </span>
-    </div>
-    <!-- File Node -->
-    <div
-      *ngIf="node.type === 'file'"
-      class="flex items-center justify-between gap-2 px-2 py-1"
-      [class.opacity-50]="!isTextFile(node.name)"
-    >
-      <div class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          [(ngModel)]="node.selected"
-          [disabled]="!isTextFile(node.name)"
-          class="w-4 h-4 border-0 border-indigo-500 accent-indigo-500 hover:accent-indigo-600"
-        />
-        <img src="assets/icons/file.svg" alt="file icon" class="w-6 h-6" />
-        <span
-          class="hover:underline"
-          [class.cursor-not-allowed]="!isTextFile(node.name)"
-          [class.text-gray-500]="!isTextFile(node.name)"
-          (click)="isTextFile(node.name) && (node.selected = !node.selected)"
-        >
-          {{ node.name }}
-        </span>
-      </div>
-      <button
-        (click)="onFileCopy(node)"
-        [disabled]="!isTextFile(node.name)"
-        class="bg-darkprimary px-3 py-1 rounded-lg hover:bg-neutral-700 transition duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
-      >
-        <img src="assets/icons/copy.svg" alt="copy icon" class="w-6 h-6" />
-      </button>
-    </div>
-    <!-- Recursive rendering for folder children -->
-    <div
-      *ngIf="node.type === 'folder' && node.expanded && node.children"
-      class="ml-4 overflow-hidden transition-all duration-500 ease-in-out"
-    >
-      <app-file-tree
-        [nodes]="node.children"
-        (fileCopy)="onFileCopy($event)"
-      ></app-file-tree>
-    </div>
-  </li>
+	<li *ngFor="let node of nodes">
+		<!-- Folder Node -->
+		<div
+			*ngIf="node.type === 'folder'"
+			class="flex items-center gap-2 cursor-pointer px-2 py-1"
+		>
+			<button (click)="toggleFolder(node)">
+				<img
+					[src]="
+						node.expanded
+							? 'assets/icons/chevron-down.svg'
+							: 'assets/icons/chevron-right.svg'
+					"
+					alt="chevron"
+					class="w-6 h-6"
+				/>
+			</button>
+			<input
+				type="checkbox"
+				[(ngModel)]="node.selected"
+				(ngModelChange)="onFolderSelect(node, $event)"
+				class="w-4 h-4 bg-transparent border border-indigo-500 accent-indigo-500 hover:accent-indigo-600"
+			/>
+			<img
+				src="assets/icons/folder-closed.svg"
+				alt="folder icon"
+				class="w-6 h-6"
+			/>
+			<span
+				class="hover:underline"
+				(click)="onFolderSelect(node, !node.selected)"
+			>
+				{{ node.name }}
+			</span>
+		</div>
+		<!-- File Node -->
+		<div
+			*ngIf="node.type === 'file'"
+			class="flex items-center justify-between gap-2 px-2 py-1"
+			[class.opacity-50]="!isTextFile(node.name)"
+		>
+			<div class="flex items-center gap-2">
+				<input
+					type="checkbox"
+					[(ngModel)]="node.selected"
+					[disabled]="!isTextFile(node.name)"
+					class="w-4 h-4 border-0 border-indigo-500 accent-indigo-500 hover:accent-indigo-600"
+				/>
+				<img src="assets/icons/file.svg" alt="file icon" class="w-6 h-6" />
+				<span
+					class="hover:underline"
+					[class.cursor-not-allowed]="!isTextFile(node.name)"
+					[class.text-gray-500]="!isTextFile(node.name)"
+					(click)="isTextFile(node.name) && (node.selected = !node.selected)"
+				>
+					{{ node.name }}
+				</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<!-- Show token count if available -->
+				<span
+					*ngIf="node.tokenCount !== undefined"
+					class="text-sm text-gray-500"
+				>
+					{{ node.tokenCount }} tokens
+				</span>
+				<button
+					(click)="onFileCopy(node)"
+					[disabled]="!isTextFile(node.name)"
+					class="bg-darkprimary px-3 py-1 rounded-lg hover:bg-neutral-700 transition duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+				>
+					<img src="assets/icons/copy.svg" alt="copy icon" class="w-6 h-6" />
+				</button>
+			</div>
+		</div>
+
+		<!-- Recursive rendering for folder children -->
+		<div
+			*ngIf="node.type === 'folder' && node.expanded && node.children"
+			class="ml-4 overflow-hidden transition-all duration-500 ease-in-out"
+		>
+			<app-file-tree
+				[nodes]="node.children"
+				(fileCopy)="onFileCopy($event)"
+			></app-file-tree>
+		</div>
+	</li>
 </ul>
