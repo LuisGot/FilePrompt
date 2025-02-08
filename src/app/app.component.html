@@ -1,46 +1,46 @@
 <!-- Main application layout splitting file view and prompt composer -->
 <div class="flex flex-col h-screen overflow-hidden text-lightprimary">
-  <app-header
-    [showComposer]="showComposer()"
-    (selectFolder)="onSelectFolder()"
-    (reloadFolder)="onReloadFolder()"
-    (toggleComposer)="onToggleComposer()"
-  ></app-header>
+	<app-header
+		[showComposer]="showComposer()"
+		(selectFolder)="onSelectFolder()"
+		(reloadFolder)="onReloadFolder()"
+		(toggleComposer)="onToggleComposer()"
+	></app-header>
 
-  <main class="flex flex-1 min-h-0 overflow-hidden">
-    <!-- File View Section -->
-    <section
-      id="file-view"
-      [class]="showComposer() ? 'w-1/2' : 'w-full'"
-      class="border-r border-darkprimary p-6 overflow-y-auto h-full min-h-0 transition-all relative"
-    >
-      <div *ngIf="isLoadingFolder()" class="h-[calc(100vh-10rem)]">
-        <app-loading-spinner></app-loading-spinner>
-      </div>
-      <div *ngIf="!isLoadingFolder()">
-        <app-file-tree
-          [nodes]="fileTree()"
-          (fileCopy)="onIndividualCopy($event)"
-        ></app-file-tree>
-      </div>
-    </section>
+	<main class="flex flex-1 min-h-0 overflow-hidden">
+		<!-- File View Section -->
+		<section
+			id="file-view"
+			[class]="showComposer() ? 'w-1/2' : 'w-full'"
+			class="border-r border-darkprimary p-6 overflow-y-auto h-full min-h-0 transition-all relative"
+		>
+			<div *ngIf="isLoadingFolder()" class="h-[calc(100vh-10rem)]">
+				<app-loading-spinner></app-loading-spinner>
+			</div>
+			<div *ngIf="!isLoadingFolder()">
+				<app-file-tree
+					[nodes]="fileTree()"
+					(fileCopy)="onIndividualCopy($event)"
+				></app-file-tree>
+			</div>
+		</section>
 
-    <!-- Prompt Composer Section -->
-    <section
-      *ngIf="showComposer()"
-      id="prompt-composer"
-      class="w-1/2 p-6 flex flex-col bg-darkbg h-full min-h-0 overflow-hidden"
-    >
-      <app-prompt-composer
-        [promptFormat]="promptFormat"
-        [fileFormat]="fileFormat"
-        [isCopying]="isCopying()"
-        (fileFormatChange)="onFileFormatChange($event)"
-        (promptFormatChange)="onPromptFormatChange($event)"
-        (copyPrompt)="onCopyPrompt()"
-      ></app-prompt-composer>
-    </section>
-  </main>
+		<!-- Prompt Composer Section -->
+		<section
+			*ngIf="showComposer()"
+			id="prompt-composer"
+			class="w-1/2 p-6 flex flex-col bg-darkbg h-full min-h-0 overflow-hidden"
+		>
+			<app-prompt-composer
+				[promptFormat]="promptFormat"
+				[fileFormat]="fileFormat"
+				[isCopying]="isCopying()"
+				(fileFormatChange)="onFileFormatChange($event)"
+				(promptFormatChange)="onPromptFormatChange($event)"
+				(copyPrompt)="onCopyPrompt()"
+			></app-prompt-composer>
+		</section>
+	</main>
 </div>
 
 <app-toast></app-toast>

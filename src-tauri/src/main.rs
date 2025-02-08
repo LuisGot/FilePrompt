@@ -16,7 +16,7 @@ struct FileNode {
     children: Option<Vec<FileNode>>,
 }
 
-/// Helper function: Returns only the immediate children (non‑recursive) of the given directory.
+/// Returns immediate children of the given directory.
 fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
     let mut results = Vec::new();
     if let Ok(entries) = fs::read_dir(dir_path) {
@@ -30,47 +30,6 @@ fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
                         name: filename,
                         path: path.to_string_lossy().to_string(),
                         children: None,
-                    });
-                } else {
-                    results.push(FileNode {
-                        node_type: "file".into(),
-                        name: filename,
-                        path: path.to_string_lossy().to_string(),
-                        children: None,
-                    });
-                }
-            }
-        }
-    }
-    results.sort_by(|a, b| {
-        if a.node_type != b.node_type {
-            if a.node_type == "folder" {
-                std::cmp::Ordering::Less
-            } else {
-                std::cmp::Ordering::Greater
-            }
-        } else {
-            a.name.to_lowercase().cmp(&b.name.to_lowercase())
-        }
-    });
-    results
-}
-
-/// Returns a full recursive tree of the given directory.
-fn get_directory_tree(dir_path: &str) -> Vec<FileNode> {
-    let mut results = Vec::new();
-    if let Ok(entries) = fs::read_dir(dir_path) {
-        for entry in entries.filter_map(Result::ok) {
-            let path = entry.path();
-            let filename = entry.file_name().into_string().unwrap_or_default();
-            if let Ok(metadata) = entry.metadata() {
-                if metadata.is_dir() {
-                    let children = get_directory_tree(path.to_str().unwrap_or(""));
-                    results.push(FileNode {
-                        node_type: "folder".into(),
-                        name: filename,
-                        path: path.to_string_lossy().to_string(),
-                        children: Some(children),
                     });
                 } else {
                     results.push(FileNode {
@@ -114,12 +73,6 @@ async fn select_folder(window: tauri::Window) -> Result<Option<String>, String> 
 }
 
 #[tauri::command]
-async fn get_directory_structure(folder_path: String) -> Result<Vec<FileNode>, String> {
-    Ok(get_directory_tree(&folder_path))
-}
-
-/// Tauri command: returns only the immediate children of the folder.
-#[tauri::command]
 async fn get_directory_children(folder_path: String) -> Result<Vec<FileNode>, String> {
     Ok(fetch_directory_children(&folder_path))
 }
@@ -138,11 +91,15 @@ async fn copy_to_clipboard(text: String) -> Result<bool, String> {
 
 #[tauri::command]
 async fn get_token_count(file_path: String) -> Result<usize, String> {
-    let content = std::fs::read_to_string(&file_path).map_err(|e| e.to_string())?;
-
-    // Try getting the encoding by name.
+    let content = fs::read_to_string(&file_path).map_err(|e| e.to_string())?;
     let bpe = p50k_base().map_err(|e| e.to_string())?;
+    let tokens = bpe.encode_with_special_tokens(&content);
+    Ok(tokens.len())
+}
 
+#[tauri::command]
+async fn get_token_count_from_string(content: String) -> Result<usize, String> {
+    let bpe = p50k_base().map_err(|e| e.to_string())?;
     let tokens = bpe.encode_with_special_tokens(&content);
     Ok(tokens.len())
 }
@@ -172,14 +129,24 @@ async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, Stri
             .strip_prefix(&args.folder_path)
             .unwrap_or(&file.path)
             .to_string();
-        let formatted = args
-            .file_format
-            .replace("{{file_name}}", &file.name)
-            .replace("{{file_content}}", &content)
-            .replace("{{file_path}}", &relative);
-        aggregated.push_str(&formatted);
+
+        // Create a template context with our values
+        let mut template = args.file_format.clone();
+        let replacements = [
+            ("{{file_name}}", file.name),
+            ("{{file_path}}", relative),
+            ("{{file_content}}", content),
+        ];
+
+        // Apply replacements in order
+        for (placeholder, value) in replacements.iter() {
+            template = template.replacen(placeholder, value, 1);
+        }
+        aggregated.push_str(&template);
     }
-    let final_output = args.prompt_format.replace("{{files}}", &aggregated);
+
+    // Apply the final template replacement
+    let final_output = args.prompt_format.replacen("{{files}}", &aggregated, 1);
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
     clipboard
         .set_text(final_output)
@@ -204,13 +171,22 @@ async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
         .strip_prefix(&args.folder_path)
         .unwrap_or(&args.file.path)
         .to_string();
-    let formatted = args
-        .file_format
-        .replace("{{file_name}}", &args.file.name)
-        .replace("{{file_content}}", &content)
-        .replace("{{file_path}}", &relative);
+
+    // Create a template context with our values
+    let mut template = args.file_format.clone();
+    let replacements = [
+        ("{{file_name}}", args.file.name),
+        ("{{file_path}}", relative),
+        ("{{file_content}}", content),
+    ];
+
+    // Apply replacements in order
+    for (placeholder, value) in replacements.iter() {
+        template = template.replacen(placeholder, value, 1);
+    }
+
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
-    clipboard.set_text(formatted).map_err(|e| e.to_string())?;
+    clipboard.set_text(template).map_err(|e| e.to_string())?;
     Ok(true)
 }
 
@@ -218,13 +194,13 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             select_folder,
-            get_directory_structure,
             get_directory_children,
             read_file,
             copy_to_clipboard,
             generate_and_copy_prompt,
             copy_file,
-            get_token_count
+            get_token_count,
+            get_token_count_from_string
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

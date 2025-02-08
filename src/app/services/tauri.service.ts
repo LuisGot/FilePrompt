@@ -1,9 +1,7 @@
 import { Injectable } from "@angular/core";
 import { invoke } from "@tauri-apps/api/tauri";
 
-/**
- * Wraps Tauri API calls.
- */
+/** Wraps Tauri API calls. */
 @Injectable({
 	providedIn: "root",
 })
@@ -12,12 +10,7 @@ export class TauriService {
 		return invoke("select_folder");
 	}
 
-	// Old recursive structure (kept for backward compatibility)
-	getDirectoryStructure(folderPath: string): Promise<any> {
-		return invoke("get_directory_structure", { folderPath });
-	}
-
-	// New command: only get immediate children
+	/** Get immediate children of a directory. */
 	getDirectoryChildren(folderPath: string): Promise<any> {
 		return invoke("get_directory_children", { folderPath });
 	}
@@ -53,5 +46,9 @@ export class TauriService {
 
 	getTokenCount(filePath: string): Promise<number> {
 		return invoke("get_token_count", { filePath });
+	}
+
+	getTokenCountFromString(content: string): Promise<number> {
+		return invoke("get_token_count_from_string", { content });
 	}
 }

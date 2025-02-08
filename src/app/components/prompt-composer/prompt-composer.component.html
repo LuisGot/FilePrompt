@@ -1,198 +1,198 @@
 <!-- Simplified prompt composer template -->
 <div id="composer-content" class="flex-1 space-y-6">
-  <!-- Prompt Format Section -->
-  <section>
-    <div class="flex justify-between items-center mb-3">
-      <h3 class="text-lg font-semibold flex items-center gap-2">
-        <img src="assets/icons/settings.svg" alt="settings" class="w-5 h-5" />
-        Prompt Format
-      </h3>
-      <button
-        (click)="openPresetsModal()"
-        class="bg-darkprimary px-4 py-2 rounded-lg hover:bg-opacity-80 transition duration-200 flex items-center gap-2 text-sm"
-      >
-        <img src="assets/icons/bookmark.svg" alt="presets" class="w-4 h-4" />
-        Presets
-      </button>
-    </div>
-    <textarea
-      [(ngModel)]="localPromptFormat"
-      (ngModelChange)="onPromptFormatChange()"
-      rows="10"
-      placeholder="Enter full content format here..."
-      class="w-full bg-darkprimary resize-none rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md placeholder-gray-400"
-    ></textarea>
-    <p class="text-sm mt-2 text-neutral-400">
-      Placeholders:
-      <code class="bg-darkprimary px-2 py-1 rounded">{{ '{{files}}' }}</code>
-    </p>
-  </section>
+	<!-- Prompt Format Section -->
+	<section>
+		<div class="flex justify-between items-center mb-3">
+			<h3 class="text-lg font-semibold flex items-center gap-2">
+				<img src="assets/icons/settings.svg" alt="settings" class="w-5 h-5" />
+				Prompt Format
+			</h3>
+			<button
+				(click)="openPresetsModal()"
+				class="bg-darkprimary px-4 py-2 rounded-lg hover:bg-opacity-80 transition duration-200 flex items-center gap-2 text-sm"
+			>
+				<img src="assets/icons/bookmark.svg" alt="presets" class="w-4 h-4" />
+				Presets
+			</button>
+		</div>
+		<textarea
+			[(ngModel)]="localPromptFormat"
+			(ngModelChange)="onPromptFormatChange()"
+			rows="10"
+			placeholder="Enter full content format here..."
+			class="w-full bg-darkprimary resize-none rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md placeholder-gray-400"
+		></textarea>
+		<p class="text-sm mt-2 text-neutral-400">
+			Placeholders:
+			<code class="bg-darkprimary px-2 py-1 rounded">{{ '{{files}}' }}</code>
+		</p>
+	</section>
 
-  <hr class="border-darkprimary opacity-50" />
+	<hr class="border-darkprimary opacity-50" />
 
-  <!-- File Format Section -->
-  <section>
-    <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-      <img src="assets/icons/file.svg" alt="file" class="w-5 h-5" />
-      File Format
-    </h3>
-    <textarea
-      [(ngModel)]="localFileFormat"
-      (ngModelChange)="onFileFormatChange()"
-      rows="8"
-      placeholder="Enter file copy format here..."
-      class="w-full bg-darkprimary resize-none rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md placeholder-gray-400"
-    ></textarea>
-    <p class="text-sm mt-2 text-neutral-400">
-      Placeholders:
-      <code class="bg-darkprimary px-2 py-1 rounded">{{ '{{file_name}}' }}</code
-      >,
-      <code class="bg-darkprimary px-2 py-1 rounded"
-        >{{ '{{file_content}}' }}</code
-      >,
-      <code class="bg-darkprimary px-2 py-1 rounded"
-        >{{ '{{file_path}}' }}</code
-      >
-    </p>
-  </section>
+	<!-- File Format Section -->
+	<section>
+		<h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+			<img src="assets/icons/file.svg" alt="file" class="w-5 h-5" />
+			File Format
+		</h3>
+		<textarea
+			[(ngModel)]="localFileFormat"
+			(ngModelChange)="onFileFormatChange()"
+			rows="8"
+			placeholder="Enter file copy format here..."
+			class="w-full bg-darkprimary resize-none rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md placeholder-gray-400"
+		></textarea>
+		<p class="text-sm mt-2 text-neutral-400">
+			Placeholders:
+			<code class="bg-darkprimary px-2 py-1 rounded">{{ '{{file_name}}' }}</code
+			>,
+			<code class="bg-darkprimary px-2 py-1 rounded"
+				>{{ '{{file_content}}' }}</code
+			>,
+			<code class="bg-darkprimary px-2 py-1 rounded"
+				>{{ '{{file_path}}' }}</code
+			>
+		</p>
+	</section>
 </div>
 
-<div id="composer-footer" class="mt-6 flex justify-end">
-  <button
-    (click)="onCopyPrompt()"
-    [disabled]="isCopying"
-    class="bg-indigo-500 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-600 transition duration-200 flex items-center gap-2 shadow-md font-medium disabled:opacity-70 disabled:cursor-wait"
-  >
-    <ng-container *ngIf="isCopying; else copyIcon">
-      <div class="animate-spin w-5 h-5">
-        <svg
-          class="w-5 h-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          ></circle>
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
-      </div>
-    </ng-container>
-    <ng-template #copyIcon>
-      <img src="assets/icons/copy.svg" alt="copy icon" class="w-5 h-5" />
-    </ng-template>
-    <span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
-  </button>
+<div id="composer-footer" class="mt-6 flex justify-between items-center">
+	<button
+		(click)="onCopyPrompt()"
+		[disabled]="isCopying"
+		class="bg-indigo-500 text-white px-6 py-2.5 rounded-lg hover:bg-indigo-600 transition duration-200 flex items-center gap-2 shadow-md font-medium disabled:opacity-70 disabled:cursor-wait"
+	>
+		<ng-container *ngIf="isCopying; else copyIcon">
+			<div class="animate-spin w-5 h-5">
+				<svg
+					class="w-5 h-5"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+				>
+					<circle
+						class="opacity-25"
+						cx="12"
+						cy="12"
+						r="10"
+						stroke="currentColor"
+						stroke-width="4"
+					></circle>
+					<path
+						class="opacity-75"
+						fill="currentColor"
+						d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+					></path>
+				</svg>
+			</div>
+		</ng-container>
+		<ng-template #copyIcon>
+			<img src="assets/icons/copy.svg" alt="copy icon" class="w-5 h-5" />
+		</ng-template>
+		<span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
+	</button>
 </div>
 
 <!-- Presets Modal -->
 <div
-  *ngIf="showPresetsModal"
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-  (click)="closePresetsModal()"
+	*ngIf="showPresetsModal"
+	class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+	(click)="closePresetsModal()"
 >
-  <!-- Modal Content -->
-  <div
-    class="bg-darkprimary rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden"
-    (click)="$event.stopPropagation()"
-  >
-    <!-- Modal Header -->
-    <div
-      class="px-6 py-4 border-b border-darkprimary flex justify-between items-center"
-    >
-      <h2 class="text-xl font-semibold flex items-center gap-2">
-        <img src="assets/icons/bookmark.svg" alt="presets" class="w-5 h-5" />
-        Prompt Presets
-      </h2>
-      <button
-        (click)="closePresetsModal()"
-        class="text-gray-400 hover:text-white transition duration-200"
-      >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          ></path>
-        </svg>
-      </button>
-    </div>
+	<!-- Modal Content -->
+	<div
+		class="bg-darkprimary rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden"
+		(click)="$event.stopPropagation()"
+	>
+		<!-- Modal Header -->
+		<div
+			class="px-6 py-4 border-b border-darkprimary flex justify-between items-center"
+		>
+			<h2 class="text-xl font-semibold flex items-center gap-2">
+				<img src="assets/icons/bookmark.svg" alt="presets" class="w-5 h-5" />
+				Prompt Presets
+			</h2>
+			<button
+				(click)="closePresetsModal()"
+				class="text-gray-400 hover:text-white transition duration-200"
+			>
+				<svg
+					class="w-6 h-6"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M6 18L18 6M6 6l12 12"
+					></path>
+				</svg>
+			</button>
+		</div>
 
-    <!-- Modal Body -->
-    <div class="p-6">
-      <!-- Save New Preset Button -->
-      <button
-        (click)="showSavePresetDialog = true"
-        class="w-full bg-darkprimary border border-gray-600 text-white px-4 py-3 rounded-lg hover:bg-opacity-80 transition duration-200 flex items-center justify-center gap-2 mb-4"
-        *ngIf="!showSavePresetDialog"
-      >
-        <img src="assets/icons/plus.svg" alt="save" class="w-5 h-5" />
-        Save Current Configuration as Preset
-      </button>
+		<!-- Modal Body -->
+		<div class="p-6">
+			<!-- Save New Preset Button -->
+			<button
+				(click)="showSavePresetDialog = true"
+				class="w-full bg-darkprimary border border-gray-600 text-white px-4 py-3 rounded-lg hover:bg-opacity-80 transition duration-200 flex items-center justify-center gap-2 mb-4"
+				*ngIf="!showSavePresetDialog"
+			>
+				<img src="assets/icons/plus.svg" alt="save" class="w-5 h-5" />
+				Save Current Configuration as Preset
+			</button>
 
-      <!-- Save Preset Dialog -->
-      <div
-        *ngIf="showSavePresetDialog"
-        class="mb-4 bg-darkprimary border border-gray-600 p-4 rounded-lg"
-      >
-        <div class="flex gap-2">
-          <input
-            [(ngModel)]="newPresetName"
-            placeholder="Enter preset name..."
-            class="flex-1 bg-darkprimary border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <button
-            (click)="savePreset()"
-            class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600"
-          >
-            Save
-          </button>
-          <button
-            (click)="showSavePresetDialog = false"
-            class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
+			<!-- Save Preset Dialog -->
+			<div
+				*ngIf="showSavePresetDialog"
+				class="mb-4 bg-darkprimary border border-gray-600 p-4 rounded-lg"
+			>
+				<div class="flex gap-2">
+					<input
+						[(ngModel)]="newPresetName"
+						placeholder="Enter preset name..."
+						class="flex-1 bg-darkprimary border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+					/>
+					<button
+						(click)="savePreset()"
+						class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600"
+					>
+						Save
+					</button>
+					<button
+						(click)="showSavePresetDialog = false"
+						class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+					>
+						Cancel
+					</button>
+				</div>
+			</div>
 
-      <!-- Presets List -->
-      <div class="space-y-2">
-        <div
-          *ngFor="let preset of presets"
-          (click)="loadPreset(preset)"
-          class="bg-darkprimary border border-gray-600 p-4 rounded-lg cursor-pointer hover:bg-opacity-80 transition duration-200 flex justify-between items-center group"
-        >
-          <span class="font-medium">{{ preset.name }}</span>
-          <button
-            (click)="deletePreset($event, preset.id)"
-            class="text-red-500 opacity-0 group-hover:opacity-100 transition duration-200 hover:text-red-600"
-          >
-            <img src="assets/icons/trash.svg" alt="delete" class="w-5 h-5" />
-          </button>
-        </div>
-        <div
-          *ngIf="presets.length === 0"
-          class="text-gray-400 text-center py-8"
-        >
-          No presets saved yet
-        </div>
-      </div>
-    </div>
-  </div>
+			<!-- Presets List -->
+			<div class="space-y-2">
+				<div
+					*ngFor="let preset of presets"
+					(click)="loadPreset(preset)"
+					class="bg-darkprimary border border-gray-600 p-4 rounded-lg cursor-pointer hover:bg-opacity-80 transition duration-200 flex justify-between items-center group"
+				>
+					<span class="font-medium">{{ preset.name }}</span>
+					<button
+						(click)="deletePreset($event, preset.id)"
+						class="text-red-500 opacity-0 group-hover:opacity-100 transition duration-200 hover:text-red-600"
+					>
+						<img src="assets/icons/trash.svg" alt="delete" class="w-5 h-5" />
+					</button>
+				</div>
+				<div
+					*ngIf="presets.length === 0"
+					class="text-gray-400 text-center py-8"
+				>
+					No presets saved yet
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
