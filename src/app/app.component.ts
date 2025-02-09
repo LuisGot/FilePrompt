@@ -105,18 +105,8 @@ export class AppComponent implements OnInit {
 			this.toast.addToast("No folder selected");
 			return;
 		}
-		const selectedFiles: { name: string; path: string }[] = [];
-		const collectFiles = (nodes: FileNode[]): void => {
-			nodes.forEach((node) => {
-				if (node.type === "file" && node.selected) {
-					selectedFiles.push({ name: node.name, path: node.path });
-				}
-				if (node.children) {
-					collectFiles(node.children);
-				}
-			});
-		};
-		collectFiles(this.fileTree());
+		// Use the existing helper to collect selected files.
+		const selectedFiles = this.getSelectedFiles();
 		if (selectedFiles.length === 0) {
 			this.toast.addToast("No files selected");
 			return;

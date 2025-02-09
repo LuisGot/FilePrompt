@@ -39,21 +39,21 @@
 		<div
 			*ngIf="node.type === 'file'"
 			class="flex items-center justify-between gap-2 px-2 py-1"
-			[class.opacity-50]="!isTextFile(node.name)"
+			[class.opacity-50]="!isTextFile(node)"
 		>
 			<div class="flex items-center gap-2">
 				<input
 					type="checkbox"
 					[(ngModel)]="node.selected"
-					[disabled]="!isTextFile(node.name)"
+					[disabled]="!isTextFile(node)"
 					class="w-4 h-4 border-0 border-indigo-500 accent-indigo-500 hover:accent-indigo-600"
 				/>
 				<img src="assets/icons/file.svg" alt="file icon" class="w-6 h-6" />
 				<span
 					class="hover:underline"
-					[class.cursor-not-allowed]="!isTextFile(node.name)"
-					[class.text-gray-500]="!isTextFile(node.name)"
-					(click)="isTextFile(node.name) && (node.selected = !node.selected)"
+					[class.cursor-not-allowed]="!isTextFile(node)"
+					[class.text-gray-500]="!isTextFile(node)"
+					(click)="isTextFile(node) && (node.selected = !node.selected)"
 				>
 					{{ node.name }}
 				</span>
@@ -73,7 +73,7 @@
 				</span>
 				<button
 					(click)="onFileCopy(node)"
-					[disabled]="!isTextFile(node.name)"
+					[disabled]="!isTextFile(node)"
 					class="bg-darkprimary px-3 py-1 rounded-lg hover:bg-neutral-700 transition duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
 				>
 					<img src="assets/icons/copy.svg" alt="copy icon" class="w-6 h-6" />

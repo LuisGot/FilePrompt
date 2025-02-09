@@ -8,6 +8,7 @@ use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
 use tiktoken_rs::tiktoken::p50k_base;
 
+/// Represents a file or folder node.
 #[derive(Serialize, Deserialize)]
 struct FileNode {
     #[serde(rename = "type")]
@@ -90,28 +91,14 @@ async fn copy_to_clipboard(text: String) -> Result<bool, String> {
     Ok(true)
 }
 
-#[tauri::command]
-async fn get_token_count(file_path: String) -> Result<usize, String> {
-    let content = fs::read_to_string(&file_path).map_err(|e| e.to_string())?;
-    let bpe = p50k_base().map_err(|e| e.to_string())?;
-    let tokens = bpe.encode_with_special_tokens(&content);
-    Ok(tokens.len())
-}
-
-#[tauri::command]
-async fn get_token_count_from_string(content: String) -> Result<usize, String> {
-    let bpe = p50k_base().map_err(|e| e.to_string())?;
-    let tokens = bpe.encode_with_special_tokens(&content);
-    Ok(tokens.len())
-}
-
-/// New struct to return file metrics.
+/// Structure to return file metrics.
 #[derive(Serialize)]
 struct FileMetrics {
     size: u64,
     line_count: usize,
     token_count: usize,
     file_path: String,
+    is_valid: bool,
 }
 
 /// New command to get file metrics (size, line count, token count) for multiple files concurrently.
@@ -121,17 +108,29 @@ async fn get_file_metrics(file_paths: Vec<String>) -> Result<Vec<FileMetrics>, S
         tauri::async_runtime::spawn_blocking(move || -> Result<FileMetrics, String> {
             let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
             let size = metadata.len();
-            let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
-            let line_count = content.lines().count();
-            let bpe = p50k_base().map_err(|e| e.to_string())?;
-            let tokens = bpe.encode_with_special_tokens(&content);
-            let token_count = tokens.len();
-            Ok(FileMetrics {
-                size,
-                line_count,
-                token_count,
-                file_path: path,
-            })
+            let file_metrics = match fs::read_to_string(&path) {
+                Ok(content) => {
+                    let line_count = content.lines().count();
+                    let bpe = p50k_base().map_err(|e| e.to_string())?;
+                    let tokens = bpe.encode_with_special_tokens(&content);
+                    let token_count = tokens.len();
+                    FileMetrics {
+                        size,
+                        line_count,
+                        token_count,
+                        file_path: path.clone(),
+                        is_valid: true,
+                    }
+                }
+                Err(_) => FileMetrics {
+                    size,
+                    line_count: 0,
+                    token_count: 0,
+                    file_path: path.clone(),
+                    is_valid: false,
+                },
+            };
+            Ok(file_metrics)
         })
     });
     let results = future::join_all(futures_vec).await;
@@ -144,6 +143,15 @@ async fn get_file_metrics(file_paths: Vec<String>) -> Result<Vec<FileMetrics>, S
         }
     }
     Ok(metrics)
+}
+
+/// Helper function to apply template replacements.
+fn apply_template(template: &str, replacements: &[(&str, &str)]) -> String {
+    let mut result = template.to_string();
+    for (placeholder, value) in replacements {
+        result = result.replacen(placeholder, value, 1);
+    }
+    result
 }
 
 #[derive(Deserialize)]
@@ -165,29 +173,24 @@ struct GeneratePromptArgs {
 async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, String> {
     let mut aggregated = String::new();
     for file in args.files {
-        let content = fs::read_to_string(&file.path).map_err(|e| e.to_string())?;
+        // Try to read the file; if it is not valid UTF‑8, skip it.
+        let content = match fs::read_to_string(&file.path) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
         let relative = file
             .path
             .strip_prefix(&args.folder_path)
             .unwrap_or(&file.path)
             .to_string();
-
-        // Create a template context with our values
-        let mut template = args.file_format.clone();
         let replacements = [
-            ("{{file_name}}", file.name),
-            ("{{file_path}}", relative),
-            ("{{file_content}}", content),
+            ("{{file_name}}", file.name.as_str()),
+            ("{{file_path}}", relative.as_str()),
+            ("{{file_content}}", content.as_str()),
         ];
-
-        // Apply replacements in order
-        for (placeholder, value) in replacements.iter() {
-            template = template.replacen(placeholder, value, 1);
-        }
-        aggregated.push_str(&template);
+        let file_output = apply_template(&args.file_format, &replacements);
+        aggregated.push_str(&file_output);
     }
-
-    // Apply the final template replacement
     let final_output = args.prompt_format.replacen("{{files}}", &aggregated, 1);
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
     clipboard
@@ -206,29 +209,25 @@ struct CopyFileArgs {
 
 #[tauri::command]
 async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
-    let content = fs::read_to_string(&args.file.path).map_err(|e| e.to_string())?;
+    // Only copy if the file can be read as valid text.
+    let content = match fs::read_to_string(&args.file.path) {
+        Ok(c) => c,
+        Err(_) => return Ok(false),
+    };
     let relative = args
         .file
         .path
         .strip_prefix(&args.folder_path)
         .unwrap_or(&args.file.path)
         .to_string();
-
-    // Create a template context with our values
-    let mut template = args.file_format.clone();
     let replacements = [
-        ("{{file_name}}", args.file.name),
-        ("{{file_path}}", relative),
-        ("{{file_content}}", content),
+        ("{{file_name}}", args.file.name.as_str()),
+        ("{{file_path}}", relative.as_str()),
+        ("{{file_content}}", content.as_str()),
     ];
-
-    // Apply replacements in order
-    for (placeholder, value) in replacements.iter() {
-        template = template.replacen(placeholder, value, 1);
-    }
-
+    let output = apply_template(&args.file_format, &replacements);
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
-    clipboard.set_text(template).map_err(|e| e.to_string())?;
+    clipboard.set_text(output).map_err(|e| e.to_string())?;
     Ok(true)
 }
 
@@ -241,8 +240,6 @@ fn main() {
             copy_to_clipboard,
             generate_and_copy_prompt,
             copy_file,
-            get_token_count,
-            get_token_count_from_string,
             get_file_metrics
         ])
         .run(tauri::generate_context!())

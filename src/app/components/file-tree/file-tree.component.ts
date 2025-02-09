@@ -10,7 +10,6 @@ import {
 import { FormsModule } from "@angular/forms";
 import { BLOCKED_FILE_EXTENSIONS } from "../../utils/file-extension.util";
 import { TauriService } from "../../services/tauri.service";
-// Import the new pipes
 import { FileSizePipe } from "../../pipes/file-size.pipe";
 import { AbbreviateNumberPipe } from "../../pipes/abbreviate-number.pipe";
 
@@ -22,10 +21,10 @@ export interface FileNode {
 	children?: FileNode[];
 	selected?: boolean;
 	expanded?: boolean;
-	// New properties for file metrics:
 	tokenCount?: number;
 	fileSize?: number;
 	lineCount?: number;
+	validText?: boolean;
 }
 
 /** Displays a recursive file tree. */
@@ -41,9 +40,12 @@ export class FileTreeComponent implements OnChanges {
 
 	constructor(private tauri: TauriService) {}
 
-	/** Returns true for text file types. */
-	isTextFile(filename: string): boolean {
-		const extension = filename.toLowerCase().slice(filename.lastIndexOf("."));
+	/** Returns true for files that have a text file extension and valid UTF‑8 content.
+	 * If the file’s validText property is explicitly false, then it is not considered a valid text file.
+	 */
+	isTextFile(node: FileNode): boolean {
+		if (node.validText === false) return false;
+		const extension = node.name.toLowerCase().slice(node.name.lastIndexOf("."));
 		return !extension || !BLOCKED_FILE_EXTENSIONS.includes(extension);
 	}
 
@@ -64,7 +66,7 @@ export class FileTreeComponent implements OnChanges {
 		for (const node of nodes) {
 			if (
 				node.type === "file" &&
-				this.isTextFile(node.name) &&
+				this.isTextFile(node) &&
 				(node.tokenCount === undefined ||
 					node.fileSize === undefined ||
 					node.lineCount === undefined)
@@ -94,6 +96,8 @@ export class FileTreeComponent implements OnChanges {
 					node.tokenCount = metric.token_count;
 					node.fileSize = metric.size;
 					node.lineCount = metric.line_count;
+					// Set the validText flag based on whether the file was read as valid UTF-8
+					node.validText = metric.is_valid;
 				}
 			}
 		} catch (error) {
@@ -117,18 +121,18 @@ export class FileTreeComponent implements OnChanges {
 		}
 	}
 
-	/** Emit file copy event if file is text. */
+	/** Emit file copy event if file is a valid text file. */
 	onFileCopy(node: FileNode): void {
-		if (this.isTextFile(node.name)) {
+		if (this.isTextFile(node)) {
 			this.fileCopy.emit(node);
 		}
 	}
 
 	/** Toggle folder selection and recursively update children. */
-	async onFolderSelect(node: FileNode, checked: boolean): Promise<void> {
+	onFolderSelect(node: FileNode, checked: boolean): void {
 		node.selected = checked;
 		if (checked) {
-			await this.loadAndSelectAllChildren(node);
+			this.loadAndSelectAllChildren(node);
 		} else {
 			if (node.children) {
 				this.updateChildrenSelection(node.children, checked);
@@ -150,11 +154,14 @@ export class FileTreeComponent implements OnChanges {
 			for (const child of node.children) {
 				child.selected = true;
 				if (child.type === "folder") {
-					await this.loadAndSelectAllChildren(child);
+					this.loadAndSelectAllChildren(child).catch((error) =>
+						console.error("Error loading subfolder children", error)
+					);
 				}
 			}
-			// Also load metrics for these children
-			await this.loadFileMetrics(node.children);
+			this.loadFileMetrics(node.children).catch((error) =>
+				console.error("Error loading file metrics", error)
+			);
 		}
 	}
 
