@@ -1,12 +1,16 @@
 <!-- Recursive file tree view template -->
-<ul class="space-y-2 bg-darkbg">
-	<li *ngFor="let node of nodes">
+<ul class="space-y-0.5 bg-darkbg">
+	<li *ngFor="let node of nodes" class="animate-fadeIn">
 		<!-- Folder Node -->
 		<div
 			*ngIf="node.type === 'folder'"
-			class="flex items-center gap-2 cursor-pointer px-2 py-1"
+			class="flex items-center gap-2 cursor-pointer px-2 py-0.5 hover:bg-neutral-700/30 rounded-sm group transition-all duration-200 ease-in-out"
+			(click)="onFolderSelect(node, !node.selected)"
 		>
-			<button (click)="toggleFolder(node)">
+			<button
+				(click)="toggleFolder(node); $event.stopPropagation()"
+				class="p-0.5"
+			>
 				<img
 					[src]="
 						node.expanded
@@ -14,74 +18,111 @@
 							: 'assets/icons/chevron-right.svg'
 					"
 					alt="chevron"
-					class="w-6 h-6"
+					class="w-4 h-4 opacity-60 group-hover:opacity-100"
 				/>
 			</button>
-			<input
-				type="checkbox"
-				[(ngModel)]="node.selected"
-				(ngModelChange)="onFolderSelect(node, $event)"
-				class="w-4 h-4 bg-transparent border border-indigo-500 accent-indigo-500 hover:accent-indigo-600"
-			/>
+			<div class="relative flex items-center justify-center">
+				<input
+					type="checkbox"
+					[(ngModel)]="node.selected"
+					(ngModelChange)="onFolderSelect(node, $event)"
+					(click)="$event.stopPropagation()"
+					class="w-3.5 h-3.5 rounded-[4px] border-[1.5px] border-neutral-500 bg-transparent appearance-none cursor-pointer checked:border-indigo-500 checked:bg-indigo-500 hover:border-indigo-400 transition-all duration-150"
+				/>
+				<svg
+					class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 check-icon transition-opacity duration-150"
+					[class.opacity-100]="node.selected"
+					viewBox="0 0 12 12"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M2.5 6L5 8.5L9.5 4"
+						stroke="white"
+						stroke-width="1.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				</svg>
+			</div>
 			<img
 				src="assets/icons/folder-closed.svg"
 				alt="folder icon"
-				class="w-6 h-6"
+				class="w-4 h-4"
 			/>
-			<span
-				class="hover:underline"
-				(click)="onFolderSelect(node, !node.selected)"
-				>{{ node.name }}</span
-			>
+			<span class="text-sm text-neutral-200 hover:text-white">{{
+				node.name
+			}}</span>
 		</div>
 		<!-- File Node -->
 		<div
 			*ngIf="node.type === 'file'"
-			class="flex items-center justify-between gap-2 px-2 py-1"
+			class="flex items-center justify-between gap-2 px-2 py-0.5 hover:bg-neutral-700/30 rounded-sm group transition-all duration-200 ease-in-out"
 			[class.opacity-50]="!isTextFile(node)"
+			(click)="isTextFile(node) && (node.selected = !node.selected)"
 		>
 			<div class="flex items-center gap-2">
-				<input
-					type="checkbox"
-					[(ngModel)]="node.selected"
-					[disabled]="!isTextFile(node)"
-					class="w-4 h-4 border-0 border-indigo-500 accent-indigo-500 hover:accent-indigo-600"
-				/>
-				<img src="assets/icons/file.svg" alt="file icon" class="w-6 h-6" />
+				<div class="w-5"></div>
+				<div class="relative flex items-center justify-center">
+					<input
+						type="checkbox"
+						[(ngModel)]="node.selected"
+						[disabled]="!isTextFile(node)"
+						(click)="$event.stopPropagation()"
+						class="w-3.5 h-3.5 rounded-[4px] border-[1.5px] border-neutral-500 bg-transparent appearance-none cursor-pointer checked:border-indigo-500 checked:bg-indigo-500 hover:border-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+					/>
+					<svg
+						class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 check-icon transition-opacity duration-150"
+						[class.opacity-100]="node.selected"
+						viewBox="0 0 12 12"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M2.5 6L5 8.5L9.5 4"
+							stroke="white"
+							stroke-width="1.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</div>
+				<img src="assets/icons/file.svg" alt="file icon" class="w-4 h-4" />
 				<span
-					class="hover:underline"
+					class="text-sm text-neutral-200 hover:text-white"
 					[class.cursor-not-allowed]="!isTextFile(node)"
-					[class.text-gray-500]="!isTextFile(node)"
-					(click)="isTextFile(node) && (node.selected = !node.selected)"
+					[class.text-neutral-500]="!isTextFile(node)"
 				>
 					{{ node.name }}
 				</span>
 			</div>
-			<div class="flex items-center gap-2">
+			<div
+				class="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity"
+			>
 				<span
 					*ngIf="
 						node.tokenCount !== undefined &&
 						node.fileSize !== undefined &&
 						node.lineCount !== undefined
 					"
-					class="text-sm text-gray-500"
+					class="text-xs text-neutral-400"
 				>
 					{{ node.fileSize | fileSize }} | {{ node.lineCount }} lines |
 					{{ node.tokenCount | abbreviateNumber }} tokens
 				</span>
 				<button
-					(click)="onFileCopy(node)"
+					(click)="onFileCopy(node); $event.stopPropagation()"
 					[disabled]="!isTextFile(node)"
-					class="bg-darkprimary px-3 py-1 rounded-lg hover:bg-neutral-700 transition duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+					class="bg-darkprimary/50 px-2 py-1 rounded hover:bg-neutral-700 transition-colors duration-150 flex items-center"
 				>
-					<img src="assets/icons/copy.svg" alt="copy icon" class="w-6 h-6" />
+					<img src="assets/icons/copy.svg" alt="copy icon" class="w-4 h-4" />
 				</button>
 			</div>
 		</div>
 		<!-- Recursive rendering for folder children -->
 		<div
 			*ngIf="node.type === 'folder' && node.expanded && node.children"
-			class="ml-4 overflow-hidden transition-all duration-500 ease-in-out"
+			class="ml-4 overflow-hidden transition-all duration-300 ease-in-out animate-fadeIn"
 		>
 			<app-file-tree
 				[nodes]="node.children"
