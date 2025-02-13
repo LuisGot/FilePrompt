@@ -801,6 +801,7 @@ version = "0.1.0"
 dependencies = [
  "arboard",
  "futures",
+ "ignore",
  "rfd",
  "serde",
  "serde_json",

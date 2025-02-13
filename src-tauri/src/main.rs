@@ -7,6 +7,7 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
 use tiktoken_rs::tiktoken::p50k_base;
+use ignore::gitignore::{Gitignore, GitignoreBuilder};
 
 /// Represents a file or folder node.
 #[derive(Serialize, Deserialize)]
@@ -21,10 +22,29 @@ struct FileNode {
 /// Returns immediate children of the given directory.
 fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
     let mut results = Vec::new();
+
+    // Build a gitignore matcher for the current directory if a .gitignore file exists
+    let gitignore_file = std::path::Path::new(dir_path).join(".gitignore");
+    let matcher = if gitignore_file.exists() {
+        let mut builder = GitignoreBuilder::new(dir_path);
+        // Add the .gitignore file; ignore errors and fallback to empty matcher
+        let _ = builder.add(gitignore_file);
+        builder.build().unwrap_or_else(|_| Gitignore::empty())
+    } else {
+        Gitignore::empty()
+    };
+
     if let Ok(entries) = fs::read_dir(dir_path) {
         for entry in entries.filter_map(Result::ok) {
             let path = entry.path();
             let filename = entry.file_name().into_string().unwrap_or_default();
+
+            // Use the filename as the relative path for matching
+            let relative_path = std::path::Path::new(&filename);
+            if matcher.matched(relative_path, path.is_dir()).is_ignore() {
+                continue;
+            }
+
             if let Ok(metadata) = entry.metadata() {
                 if metadata.is_dir() {
                     results.push(FileNode {

@@ -18,6 +18,7 @@ rfd = "0.10"          # add an appropriate version for rfd
 arboard = "1.2"       # add an appropriate version for arboard
 tiktoken-rs = "0.1"  # use the appropriate version
 futures = "0.3"       # add futures dependency
+ignore = "0.4"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
