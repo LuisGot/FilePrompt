@@ -13,13 +13,8 @@
 	"tauri": {
 		"allowlist": {
 			"all": false,
-			"shell": {
-				"all": false,
-				"open": true
-			},
-			"dialog": {
-				"all": true
-			}
+			"shell": { "all": false, "open": true },
+			"dialog": { "all": true }
 		},
 		"windows": [
 			{
@@ -28,9 +23,7 @@
 				"height": 600
 			}
 		],
-		"security": {
-			"csp": null
-		},
+		"security": { "csp": null },
 		"bundle": {
 			"active": true,
 			"targets": "all",

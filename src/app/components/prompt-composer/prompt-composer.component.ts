@@ -34,7 +34,6 @@ export class PromptComposerComponent implements OnInit {
 	constructor(private presetService: PresetService) {}
 
 	ngOnInit(): void {
-		// Initialize local values from the provided functions.
 		this.localFileFormat = this.fileFormat();
 		this.localPromptFormat = this.promptFormat();
 		this.loadPresets();

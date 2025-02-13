@@ -93,7 +93,6 @@
 			</ng-template>
 			<span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
 		</button>
-		<!-- Display aggregated prompt metrics if available -->
 		<div *ngIf="aggregatedMetrics" class="text-sm text-gray-500">
 			{{ aggregatedMetrics.size | fileSize }} |
 			{{ aggregatedMetrics.lineCount }} lines |
@@ -108,12 +107,10 @@
 	class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
 	(click)="closePresetsModal()"
 >
-	<!-- Modal Content -->
 	<div
 		class="bg-darkprimary rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden"
 		(click)="$event.stopPropagation()"
 	>
-		<!-- Modal Header -->
 		<div
 			class="px-6 py-4 border-b border-darkprimary flex justify-between items-center"
 		>
@@ -140,20 +137,15 @@
 				</svg>
 			</button>
 		</div>
-
-		<!-- Modal Body -->
 		<div class="p-6">
-			<!-- Save New Preset Button -->
 			<button
+				*ngIf="!showSavePresetDialog"
 				(click)="showSavePresetDialog = true"
 				class="w-full bg-darkprimary border border-gray-600 text-white px-4 py-3 rounded-lg hover:bg-opacity-80 transition duration-200 flex items-center justify-center gap-2 mb-4"
-				*ngIf="!showSavePresetDialog"
 			>
 				<img src="assets/icons/plus.svg" alt="save" class="w-5 h-5" />
 				Save Current Configuration as Preset
 			</button>
-
-			<!-- Save Preset Dialog -->
 			<div
 				*ngIf="showSavePresetDialog"
 				class="mb-4 bg-darkprimary border border-gray-600 p-4 rounded-lg"
@@ -178,8 +170,6 @@
 					</button>
 				</div>
 			</div>
-
-			<!-- Presets List -->
 			<div class="space-y-2">
 				<div
 					*ngFor="let preset of presets"

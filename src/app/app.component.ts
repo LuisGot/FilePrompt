@@ -12,7 +12,6 @@ import { TauriService } from "./services/tauri.service";
 import { LoadingSpinnerComponent } from "./components/loading-spinner/loading-spinner.component";
 import { CommonModule } from "@angular/common";
 
-/** Main component coordinating file tree, prompt, and clipboard operations. */
 @Component({
 	selector: "app-root",
 	standalone: true,
@@ -45,11 +44,9 @@ export class AppComponent implements OnInit {
 		@Inject(ToastService) private toast: ToastService
 	) {}
 
-	ngOnInit(): void {
-		// Initialization logic if needed.
-	}
+	ngOnInit(): void {}
 
-	/** Initiate folder selection and load its contents. */
+	// Initiate folder selection and load its contents
 	onSelectFolder(): void {
 		this.isLoadingFolder.set(true);
 		this.tauri
@@ -69,7 +66,7 @@ export class AppComponent implements OnInit {
 			});
 	}
 
-	/** Reload folder contents if a folder is selected. */
+	// Reload folder contents
 	onReloadFolder(): void {
 		if (this.currentFolderPath) {
 			this.isLoadingFolder.set(true);
@@ -79,7 +76,7 @@ export class AppComponent implements OnInit {
 		}
 	}
 
-	/** Load immediate children of the selected folder. */
+	// Load immediate children of the selected folder
 	private loadDirectoryStructure(folder: string): void {
 		this.tauri
 			.getDirectoryChildren(folder)
@@ -94,18 +91,17 @@ export class AppComponent implements OnInit {
 			});
 	}
 
-	/** Toggle visibility of the prompt composer. */
+	// Toggle prompt composer visibility
 	onToggleComposer(): void {
 		this.showComposer.update((show) => !show);
 	}
 
-	/** Copy prompt generated from selected files. */
+	// Generate and copy prompt based on selected files
 	onCopyPrompt(): void {
 		if (!this.currentFolderPath) {
 			this.toast.addToast("No folder selected");
 			return;
 		}
-		// Use the existing helper to collect selected files.
 		const selectedFiles = this.getSelectedFiles();
 		if (selectedFiles.length === 0) {
 			this.toast.addToast("No files selected");
@@ -132,7 +128,7 @@ export class AppComponent implements OnInit {
 			});
 	}
 
-	/** Copy individual file's content to clipboard. */
+	// Copy an individual file's content to clipboard
 	onIndividualCopy(file: FileNode): void {
 		if (!this.currentFolderPath) {
 			this.toast.addToast("No folder selected");
@@ -154,17 +150,17 @@ export class AppComponent implements OnInit {
 			});
 	}
 
-	/** Update file format signal. */
+	// Update file format
 	onFileFormatChange(newFormat: string): void {
 		this.fileFormat.set(newFormat);
 	}
 
-	/** Update prompt format signal. */
+	// Update prompt format
 	onPromptFormatChange(newFormat: string): void {
 		this.promptFormat.set(newFormat);
 	}
 
-	/** Get array of selected files from the file tree. */
+	// Recursively collect selected file nodes
 	getSelectedFiles(): { name: string; path: string }[] {
 		const selectedFiles: { name: string; path: string }[] = [];
 		const collectFiles = (nodes: FileNode[]): void => {

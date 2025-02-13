@@ -2,14 +2,13 @@
 
 use arboard::Clipboard;
 use futures::future;
+use ignore::gitignore::{Gitignore, GitignoreBuilder};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
 use tiktoken_rs::tiktoken::p50k_base;
-use ignore::gitignore::{Gitignore, GitignoreBuilder};
 
-/// Represents a file or folder node.
 #[derive(Serialize, Deserialize)]
 struct FileNode {
     #[serde(rename = "type")]
@@ -19,15 +18,12 @@ struct FileNode {
     children: Option<Vec<FileNode>>,
 }
 
-/// Returns immediate children of the given directory.
+// Returns immediate children of the given directory
 fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
     let mut results = Vec::new();
-
-    // Build a gitignore matcher for the current directory if a .gitignore file exists
     let gitignore_file = std::path::Path::new(dir_path).join(".gitignore");
     let matcher = if gitignore_file.exists() {
         let mut builder = GitignoreBuilder::new(dir_path);
-        // Add the .gitignore file; ignore errors and fallback to empty matcher
         let _ = builder.add(gitignore_file);
         builder.build().unwrap_or_else(|_| Gitignore::empty())
     } else {
@@ -38,13 +34,10 @@ fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
         for entry in entries.filter_map(Result::ok) {
             let path = entry.path();
             let filename = entry.file_name().into_string().unwrap_or_default();
-
-            // Use the filename as the relative path for matching
             let relative_path = std::path::Path::new(&filename);
             if matcher.matched(relative_path, path.is_dir()).is_ignore() {
                 continue;
             }
-
             if let Ok(metadata) = entry.metadata() {
                 if metadata.is_dir() {
                     results.push(FileNode {
@@ -111,7 +104,6 @@ async fn copy_to_clipboard(text: String) -> Result<bool, String> {
     Ok(true)
 }
 
-/// Structure to return file metrics.
 #[derive(Serialize)]
 struct FileMetrics {
     size: u64,
@@ -121,7 +113,6 @@ struct FileMetrics {
     is_valid: bool,
 }
 
-/// New command to get file metrics (size, line count, token count) for multiple files concurrently.
 #[tauri::command]
 async fn get_file_metrics(file_paths: Vec<String>) -> Result<Vec<FileMetrics>, String> {
     let futures_vec = file_paths.into_iter().map(|path| {
@@ -165,7 +156,6 @@ async fn get_file_metrics(file_paths: Vec<String>) -> Result<Vec<FileMetrics>, S
     Ok(metrics)
 }
 
-/// Helper function to apply template replacements.
 fn apply_template(template: &str, replacements: &[(&str, &str)]) -> String {
     let mut result = template.to_string();
     for (placeholder, value) in replacements {
@@ -193,7 +183,6 @@ struct GeneratePromptArgs {
 async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, String> {
     let mut aggregated = String::new();
     for file in args.files {
-        // Try to read the file; if it is not valid UTF‑8, skip it.
         let content = match fs::read_to_string(&file.path) {
             Ok(c) => c,
             Err(_) => continue,
@@ -229,7 +218,6 @@ struct CopyFileArgs {
 
 #[tauri::command]
 async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
-    // Only copy if the file can be read as valid text.
     let content = match fs::read_to_string(&args.file.path) {
         Ok(c) => c,
         Err(_) => return Ok(false),

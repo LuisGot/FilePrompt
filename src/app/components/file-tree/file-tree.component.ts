@@ -13,7 +13,6 @@ import { TauriService } from "../../services/tauri.service";
 import { FileSizePipe } from "../../pipes/file-size.pipe";
 import { AbbreviateNumberPipe } from "../../pipes/abbreviate-number.pipe";
 
-/** Represents a file or folder node. */
 export interface FileNode {
 	type: "folder" | "file";
 	name: string;
@@ -27,7 +26,6 @@ export interface FileNode {
 	validText?: boolean;
 }
 
-/** Displays a recursive file tree. */
 @Component({
 	selector: "app-file-tree",
 	standalone: true,
@@ -40,16 +38,14 @@ export class FileTreeComponent implements OnChanges {
 
 	constructor(private tauri: TauriService) {}
 
-	/** Returns true for files that have a text file extension and valid UTF‑8 content.
-	 * If the file’s validText property is explicitly false, then it is not considered a valid text file.
-	 */
+	// Return true if file node is valid text (i.e. not blocked)
 	isTextFile(node: FileNode): boolean {
 		if (node.validText === false) return false;
 		const extension = node.name.toLowerCase().slice(node.name.lastIndexOf("."));
 		return !extension || !BLOCKED_FILE_EXTENSIONS.includes(extension);
 	}
 
-	/** Handle input changes; load file metrics asynchronously. */
+	// When nodes change, load missing metrics
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes["nodes"]) {
 			(async () => {
@@ -58,9 +54,7 @@ export class FileTreeComponent implements OnChanges {
 		}
 	}
 
-	/**
-	 * Recursively collect all file nodes that are text files and missing metrics.
-	 */
+	// Recursively collect file nodes missing metrics
 	private collectFileNodes(nodes: FileNode[]): FileNode[] {
 		let results: FileNode[] = [];
 		for (const node of nodes) {
@@ -73,80 +67,71 @@ export class FileTreeComponent implements OnChanges {
 			) {
 				results.push(node);
 			}
-			if (node.children && node.children.length > 0) {
+			if (node.children?.length) {
 				results = results.concat(this.collectFileNodes(node.children));
 			}
 		}
 		return results;
 	}
 
-	/**
-	 * Load file metrics (size, line count, token count) for all text file nodes concurrently.
-	 */
+	// Load file metrics (size, line count, token count) concurrently
 	private async loadFileMetrics(nodes: FileNode[]): Promise<void> {
 		const fileNodes = this.collectFileNodes(nodes);
-		if (fileNodes.length === 0) return;
+		if (!fileNodes.length) return;
 		const filePaths = fileNodes.map((node) => node.path);
 		try {
 			const metrics = await this.tauri.getFileMetrics(filePaths);
-			// Match each returned metric with the corresponding file node
 			for (const metric of metrics) {
 				const node = fileNodes.find((n) => n.path === metric.file_path);
 				if (node) {
 					node.tokenCount = metric.token_count;
 					node.fileSize = metric.size;
 					node.lineCount = metric.line_count;
-					// Set the validText flag based on whether the file was read as valid UTF-8
 					node.validText = metric.is_valid;
 				}
 			}
 		} catch (error) {
-			console.error("Error getting file metrics:", error);
+			console.error("Error fetching file metrics:", error);
 		}
 	}
 
-	/** Toggle folder expansion and load children if needed. */
+	// Toggle folder expansion and load children if needed
 	async toggleFolder(node: FileNode): Promise<void> {
 		node.expanded = !node.expanded;
 		if (node.expanded && (!node.children || node.children.length === 0)) {
 			try {
 				node.children = await this.tauri.getDirectoryChildren(node.path);
-				if (node.children) {
-					// Load metrics for the newly loaded children
-					await this.loadFileMetrics(node.children);
-				}
+				if (node.children) await this.loadFileMetrics(node.children);
 			} catch (error) {
-				console.error("Error loading folder children", error);
+				console.error("Error loading folder children:", error);
 			}
 		}
 	}
 
-	/** Emit file copy event if file is a valid text file. */
+	// Emit file copy event for valid text files
 	onFileCopy(node: FileNode): void {
 		if (this.isTextFile(node)) {
 			this.fileCopy.emit(node);
 		}
 	}
 
-	/** Toggle folder selection and recursively update children. */
+	// Toggle folder selection and update children recursively
 	onFolderSelect(node: FileNode, checked: boolean): void {
 		node.selected = checked;
 		if (checked) {
 			this.loadAndSelectAllChildren(node);
-		} else {
-			if (node.children) {
-				this.updateChildrenSelection(node.children, checked);
-			}
+		} else if (node.children) {
+			this.updateChildrenSelection(node.children, checked);
 		}
 	}
 
-	/** Recursively load and select nested children. */
+	// Recursively load and select nested children
 	private async loadAndSelectAllChildren(node: FileNode): Promise<void> {
 		if (!node.children || node.children.length === 0) {
 			try {
 				node.children = await this.tauri.getDirectoryChildren(node.path);
 			} catch (error) {
-				console.error("Error loading folder children", error);
+				console.error("Error loading subfolder children:", error);
 				return;
 			}
 		}
@@ -154,18 +139,16 @@ export class FileTreeComponent implements OnChanges {
 			for (const child of node.children) {
 				child.selected = true;
 				if (child.type === "folder") {
-					this.loadAndSelectAllChildren(child).catch((error) =>
-						console.error("Error loading subfolder children", error)
+					this.loadAndSelectAllChildren(child).catch((err) =>
+						console.error(err)
 					);
 				}
 			}
-			this.loadFileMetrics(node.children).catch((error) =>
-				console.error("Error loading file metrics", error)
-			);
+			this.loadFileMetrics(node.children).catch((err) => console.error(err));
 		}
 	}
 
-	/** Recursively update selection for child nodes. */
+	// Recursively update selection state for children nodes
 	private updateChildrenSelection(nodes: FileNode[], checked: boolean): void {
 		for (const node of nodes) {
 			node.selected = checked;
