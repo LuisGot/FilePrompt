@@ -21,23 +21,44 @@ struct FileNode {
 // Returns immediate children of the given directory
 fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
     let mut results = Vec::new();
-    let gitignore_file = std::path::Path::new(dir_path).join(".gitignore");
-    let matcher = if gitignore_file.exists() {
-        let mut builder = GitignoreBuilder::new(dir_path);
-        let _ = builder.add(gitignore_file);
-        builder.build().unwrap_or_else(|_| Gitignore::empty())
-    } else {
-        Gitignore::empty()
-    };
+    // Determine repository root (fallback to dir_path if current_dir fails)
+    let repo_root = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from(dir_path));
+    let selected_dir = std::path::Path::new(dir_path);
+
+    // Build ignore matchers from all .gitignore files from selected_dir up to repo_root
+    let mut ignore_matchers = Vec::new();
+    let mut current = selected_dir;
+    loop {
+        let gitignore_file = current.join(".gitignore");
+        if gitignore_file.exists() {
+            let mut builder = GitignoreBuilder::new(current);
+            let _ = builder.add(gitignore_file);
+            let matcher = builder.build().unwrap_or_else(|_| Gitignore::empty());
+            ignore_matchers.push((current.to_path_buf(), matcher));
+        }
+        if current == repo_root || current.parent().is_none() {
+            break;
+        }
+        current = current.parent().unwrap();
+    }
 
     if let Ok(entries) = fs::read_dir(dir_path) {
         for entry in entries.filter_map(Result::ok) {
             let path = entry.path();
-            let filename = entry.file_name().into_string().unwrap_or_default();
-            let relative_path = std::path::Path::new(&filename);
-            if matcher.matched(relative_path, path.is_dir()).is_ignore() {
+            let mut ignored = false;
+            // Check each applicable .gitignore matcher
+            for (base, matcher) in &ignore_matchers {
+                if let Ok(relative) = path.strip_prefix(base) {
+                    if matcher.matched(relative, path.is_dir()).is_ignore() {
+                        ignored = true;
+                        break;
+                    }
+                }
+            }
+            if ignored {
                 continue;
             }
+            let filename = entry.file_name().into_string().unwrap_or_default();
             if let Ok(metadata) = entry.metadata() {
                 if metadata.is_dir() {
                     results.push(FileNode {
