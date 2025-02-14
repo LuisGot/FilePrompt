@@ -5,6 +5,7 @@
 		(selectFolder)="onSelectFolder()"
 		(reloadFolder)="onReloadFolder()"
 		(toggleComposer)="onToggleComposer()"
+		(openSettings)="onOpenSettings()"
 	></app-header>
 
 	<main class="flex flex-1 min-h-0 overflow-hidden">
@@ -44,3 +45,7 @@
 </div>
 
 <app-toast></app-toast>
+<app-settings-modal
+	*ngIf="showSettings()"
+	(close)="onCloseSettings()"
+></app-settings-modal>

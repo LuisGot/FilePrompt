@@ -26,13 +26,23 @@
 				placeholder="Enter full content format here..."
 				class="w-full bg-darkprimary/50 resize-none rounded-xl p-4 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 placeholder-neutral-500 transition-all duration-300 ease-in-out"
 			></textarea>
-			<p class="text-sm mt-2 text-neutral-400 flex items-center gap-2">
-				Placeholders:
-				<code
-					class="bg-darkprimary/50 px-2 py-1 rounded-lg border border-neutral-700/50 inline-flex"
-					>{{ '{{files}}' }}</code
+			<div
+				class="flex justify-between items-center text-sm mt-2 text-neutral-400"
+			>
+				<div class="flex items-center gap-2">
+					Placeholders:
+					<code
+						class="bg-darkprimary/50 px-2 py-1 rounded-lg border border-neutral-700/50 inline-flex"
+						>{{ '{{files}}' }}</code
+					>
+				</div>
+				<button
+					(click)="onEnhancePrompt()"
+					class="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 active:bg-indigo-700"
 				>
-			</p>
+					Enhance
+				</button>
+			</div>
 		</section>
 
 		<!-- File Format Section -->

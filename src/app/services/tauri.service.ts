@@ -53,4 +53,20 @@ export class TauriService {
 	getFileMetrics(filePaths: string[]): Promise<any> {
 		return invoke("get_file_metrics", { filePaths });
 	}
+
+	enhancePrompt(
+		providerUrl: string,
+		model: string,
+		apiKey: string,
+		promptFormat: string
+	): Promise<string> {
+		return invoke("enhance_prompt", {
+			args: {
+				provider_url: providerUrl,
+				model,
+				api_key: apiKey,
+				prompt_format: promptFormat,
+			},
+		});
+	}
 }

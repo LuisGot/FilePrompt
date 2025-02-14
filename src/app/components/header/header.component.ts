@@ -12,6 +12,7 @@ export class HeaderComponent {
 	@Output() selectFolder = new EventEmitter<void>();
 	@Output() reloadFolder = new EventEmitter<void>();
 	@Output() toggleComposer = new EventEmitter<void>();
+	@Output() openSettings = new EventEmitter<void>();
 
 	onSelectFolder(): void {
 		this.selectFolder.emit();
@@ -21,5 +22,8 @@ export class HeaderComponent {
 	}
 	onToggleComposer(): void {
 		this.toggleComposer.emit();
+	}
+	onOpenSettings(): void {
+		this.openSettings.emit();
 	}
 }

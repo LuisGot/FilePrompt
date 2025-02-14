@@ -3,7 +3,9 @@
 use arboard::Clipboard;
 use futures::future;
 use ignore::gitignore::{Gitignore, GitignoreBuilder};
+use reqwest;
 use serde::{Deserialize, Serialize};
+use serde_json;
 use std::fs;
 use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
@@ -260,6 +262,40 @@ async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
     Ok(true)
 }
 
+#[derive(Deserialize)]
+struct EnhancePromptArgs {
+    provider_url: String,
+    model: String,
+    api_key: String,
+    prompt_format: String,
+}
+
+#[tauri::command]
+async fn enhance_prompt(args: EnhancePromptArgs) -> Result<String, String> {
+    // Build the prompt using the provided prompt_format
+    let prompt = format!("Improve:\n{}", args.prompt_format);
+    let client = reqwest::Client::new();
+    let body = serde_json::json!({
+        "messages": [{"role": "user", "content": prompt}],
+        "model": args.model,
+        "reasoning_format": "hidden",
+    });
+    let res = client
+        .post(&args.provider_url)
+        .header("Authorization", format!("Bearer {}", args.api_key))
+        .header("Content-Type", "application/json")
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let json: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
+    if let Some(content) = json["choices"][0]["message"]["content"].as_str() {
+        Ok(content.to_string())
+    } else {
+        Err("Invalid response format".into())
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -269,7 +305,8 @@ fn main() {
             copy_to_clipboard,
             generate_and_copy_prompt,
             copy_file,
-            get_file_metrics
+            get_file_metrics,
+            enhance_prompt
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

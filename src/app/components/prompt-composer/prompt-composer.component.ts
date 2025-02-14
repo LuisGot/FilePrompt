@@ -4,6 +4,8 @@ import { CommonModule } from "@angular/common";
 import { PresetService, PromptPreset } from "../../services/preset.service";
 import { FileSizePipe } from "../../pipes/file-size.pipe";
 import { AbbreviateNumberPipe } from "../../pipes/abbreviate-number.pipe";
+import { TauriService } from "../../services/tauri.service";
+import { ToastService } from "../../services/toast.service";
 
 @Component({
 	selector: "app-prompt-composer",
@@ -31,7 +33,11 @@ export class PromptComposerComponent implements OnInit {
 	showSavePresetDialog = false;
 	newPresetName = "";
 
-	constructor(private presetService: PresetService) {}
+	constructor(
+		private presetService: PresetService,
+		private tauriService: TauriService,
+		private toast: ToastService
+	) {}
 
 	ngOnInit(): void {
 		this.localFileFormat = this.fileFormat();
@@ -93,5 +99,27 @@ export class PromptComposerComponent implements OnInit {
 		this.showPresetsModal = false;
 		this.showSavePresetDialog = false;
 		this.newPresetName = "";
+	}
+
+	onEnhancePrompt(): void {
+		const providerUrl = localStorage.getItem("providerUrl") || "";
+		const model = localStorage.getItem("model") || "";
+		const apiKey = localStorage.getItem("apiKey") || "";
+		if (!providerUrl || !model || !apiKey) {
+			this.toast.addToast(
+				"Please set provider URL, model, and API key in settings."
+			);
+			return;
+		}
+		this.tauriService
+			.enhancePrompt(providerUrl, model, apiKey, this.localPromptFormat)
+			.then((enhancedText: string) => {
+				this.localPromptFormat = enhancedText;
+				this.onPromptFormatChange();
+				this.toast.addToast("Successfully enhanced prompt!");
+			})
+			.catch((error: any) => {
+				this.toast.addToast("Error enhancing prompt: " + error);
+			});
 	}
 }

@@ -11,6 +11,7 @@ import { ToastService } from "./services/toast.service";
 import { TauriService } from "./services/tauri.service";
 import { LoadingSpinnerComponent } from "./components/loading-spinner/loading-spinner.component";
 import { CommonModule } from "@angular/common";
+import { SettingsModalComponent } from "./components/settings-modal/settings-modal.component";
 
 @Component({
 	selector: "app-root",
@@ -22,6 +23,7 @@ import { CommonModule } from "@angular/common";
 		ToastComponent,
 		LoadingSpinnerComponent,
 		CommonModule,
+		SettingsModalComponent,
 	],
 	templateUrl: "./app.component.html",
 })
@@ -34,6 +36,7 @@ export class AppComponent implements OnInit {
 		localStorage.getItem("promptFormat") || "{{files}}"
 	);
 	showComposer = signal<boolean>(true);
+	showSettings = signal<boolean>(false);
 	fileTree = signal<FileNode[]>([]);
 	currentFolderPath: string | null = null;
 	isCopying = signal<boolean>(false);
@@ -45,6 +48,16 @@ export class AppComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {}
+
+	// Open settings modal
+	onOpenSettings(): void {
+		this.showSettings.set(true);
+	}
+
+	// Close settings modal
+	onCloseSettings(): void {
+		this.showSettings.set(false);
+	}
 
 	// Initiate folder selection and load its contents
 	onSelectFolder(): void {

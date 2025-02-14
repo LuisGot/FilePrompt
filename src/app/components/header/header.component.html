@@ -29,11 +29,27 @@
 	>
 		FilePrompt
 	</div>
-	<button
-		(click)="onToggleComposer()"
-		class="bg-darkprimary/50 px-4 py-2 rounded-xl hover:bg-neutral-700/50 active:bg-neutral-600/50 transition-all duration-150 flex items-center gap-2 text-sm border border-neutral-700/50"
-	>
-		<img src="assets/icons/settings.svg" alt="settings icon" class="w-4 h-4" />
-		<span>{{ showComposer ? "Hide Composer" : "Show Composer" }}</span>
-	</button>
+	<div class="flex items-center gap-2">
+		<button
+			(click)="onToggleComposer()"
+			class="bg-darkprimary/50 px-4 py-2 rounded-xl hover:bg-neutral-700/50 active:bg-neutral-600/50 transition-all duration-150 flex items-center gap-2 text-sm border border-neutral-700/50"
+		>
+			<img
+				src="assets/icons/settings.svg"
+				alt="composer toggle icon"
+				class="w-4 h-4"
+			/>
+			<span>{{ showComposer ? "Hide Composer" : "Show Composer" }}</span>
+		</button>
+		<button
+			(click)="onOpenSettings()"
+			class="bg-darkprimary/50 p-2 rounded-xl hover:bg-neutral-700/50 active:bg-neutral-600/50 transition-all duration-150 border border-neutral-700/50"
+		>
+			<img
+				src="assets/icons/settings.svg"
+				alt="settings icon"
+				class="w-4 h-4"
+			/>
+		</button>
+	</div>
 </header>
