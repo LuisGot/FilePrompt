@@ -1,0 +1,13 @@
+You are a helpful AI assistant. Your task is to improve and enhance the following prompt while maintaining its core meaning and purpose. Please make it more effective, clear, and well-structured.
+
+Input prompt to improve:
+[[user-input]]
+
+Please enhance this prompt by:
+1. Improving clarity and coherence
+2. Adding relevant context if needed
+3. Optimizing the structure
+4. Making it more engaging and effective
+5. Maintaining the original intent and purpose
+
+Provide the improved version only, without explanations. 

@@ -32,7 +32,7 @@ import { FormsModule } from "@angular/forms";
 						<svg
 							class="w-5 h-5"
 							fill="none"
-							stroke="currentColor"
+							stroke="#c4cad4"
 							viewBox="0 0 24 24"
 						>
 							<path
@@ -86,6 +86,42 @@ import { FormsModule } from "@angular/forms";
 								class="w-full bg-darkprimary/50 rounded-xl px-4 py-2.5 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 placeholder-neutral-400 text-white text-sm transition-all duration-150"
 							/>
 						</div>
+
+						<!-- Ultimate Mode -->
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-2">
+								<label class="text-sm font-medium text-white w-fit"
+									>Ultimate Prompt Mode
+									<span class="text-xs text-neutral-500"
+										>~5k Tokens</span
+									></label
+								>
+							</div>
+							<label
+								class="relative flex items-center justify-center cursor-pointer"
+							>
+								<input
+									type="checkbox"
+									[(ngModel)]="ultimateMode"
+									class="w-4 h-4 rounded-[4px] border-[1.5px] border-neutral-500 bg-transparent appearance-none cursor-pointer checked:border-indigo-500 checked:bg-indigo-500 hover:border-indigo-400 transition-all duration-150"
+								/>
+								<svg
+									class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 check-icon transition-opacity duration-150"
+									[class.opacity-100]="ultimateMode"
+									viewBox="0 0 12 12"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M2.5 6L5 8.5L9.5 4"
+										stroke="white"
+										stroke-width="1.5"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+								</svg>
+							</label>
+						</div>
 					</div>
 				</div>
 
@@ -115,11 +151,13 @@ export class SettingsModalComponent {
 	providerUrl: string = localStorage.getItem("providerUrl") || "";
 	model: string = localStorage.getItem("model") || "";
 	apiKey: string = localStorage.getItem("apiKey") || "";
+	ultimateMode: boolean = localStorage.getItem("ultimateMode") === "true";
 
 	onSave(): void {
 		localStorage.setItem("providerUrl", this.providerUrl);
 		localStorage.setItem("model", this.model);
 		localStorage.setItem("apiKey", this.apiKey);
+		localStorage.setItem("ultimateMode", this.ultimateMode.toString());
 		this.close.emit();
 	}
 

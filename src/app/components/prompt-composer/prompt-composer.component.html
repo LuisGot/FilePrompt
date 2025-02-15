@@ -24,7 +24,8 @@
 				(ngModelChange)="onPromptFormatChange()"
 				rows="10"
 				placeholder="Enter full content format here..."
-				class="w-full bg-darkprimary/50 resize-none rounded-xl p-4 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 placeholder-neutral-500 transition-all duration-300 ease-in-out"
+				[disabled]="isEnhancing"
+				class="w-full bg-darkprimary/50 resize-none rounded-xl p-4 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 placeholder-neutral-500 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
 			></textarea>
 			<div
 				class="flex justify-between items-center text-sm mt-2 text-neutral-400"
@@ -38,9 +39,38 @@
 				</div>
 				<button
 					(click)="onEnhancePrompt()"
-					class="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 active:bg-indigo-700"
+					[disabled]="isEnhancing"
+					class="bg-indigo-500 text-white px-6 py-2.5 rounded-xl hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-150 flex items-center gap-2 font-medium disabled:opacity-70 disabled:cursor-wait"
 				>
-					Enhance
+					<div *ngIf="isEnhancing" class="animate-spin w-5 h-5">
+						<svg
+							class="w-5 h-5"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+						>
+							<circle
+								class="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								stroke-width="4"
+							></circle>
+							<path
+								class="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+					</div>
+					<img
+						*ngIf="!isEnhancing"
+						src="assets/icons/sparkles.svg"
+						alt="enhance icon"
+						class="w-5 h-5"
+					/>
+					<span>{{ isEnhancing ? "Enhancing..." : "Enhance" }}</span>
 				</button>
 			</div>
 		</section>

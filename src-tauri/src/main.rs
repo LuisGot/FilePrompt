@@ -268,12 +268,24 @@ struct EnhancePromptArgs {
     model: String,
     api_key: String,
     prompt_format: String,
+    ultimate_mode: bool,
 }
 
 #[tauri::command]
 async fn enhance_prompt(args: EnhancePromptArgs) -> Result<String, String> {
-    // Build the prompt using the provided prompt_format
-    let prompt = format!("Improve:\n{}", args.prompt_format);
+    // Read the appropriate prompt template based on ultimate_mode
+    let template_path = if args.ultimate_mode {
+        "src/ultimate_prompt_template.txt"
+    } else {
+        "src/prompt_template.txt"
+    };
+
+    let template = fs::read_to_string(template_path)
+        .map_err(|e| format!("Failed to read prompt template: {}", e))?;
+
+    // Replace the placeholder with the user's input
+    let prompt = template.replace("[[user-input]]", &args.prompt_format);
+
     let client = reqwest::Client::new();
     let body = serde_json::json!({
         "messages": [{"role": "user", "content": prompt}],

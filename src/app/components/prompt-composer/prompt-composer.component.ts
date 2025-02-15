@@ -32,6 +32,7 @@ export class PromptComposerComponent implements OnInit {
 	showPresetsModal = false;
 	showSavePresetDialog = false;
 	newPresetName = "";
+	isEnhancing = false;
 
 	constructor(
 		private presetService: PresetService,
@@ -105,14 +106,24 @@ export class PromptComposerComponent implements OnInit {
 		const providerUrl = localStorage.getItem("providerUrl") || "";
 		const model = localStorage.getItem("model") || "";
 		const apiKey = localStorage.getItem("apiKey") || "";
+		const ultimateMode = localStorage.getItem("ultimateMode") === "true";
+
 		if (!providerUrl || !model || !apiKey) {
 			this.toast.addToast(
 				"Please set provider URL, model, and API key in settings."
 			);
 			return;
 		}
+
+		this.isEnhancing = true;
 		this.tauriService
-			.enhancePrompt(providerUrl, model, apiKey, this.localPromptFormat)
+			.enhancePrompt(
+				providerUrl,
+				model,
+				apiKey,
+				this.localPromptFormat,
+				ultimateMode
+			)
 			.then((enhancedText: string) => {
 				this.localPromptFormat = enhancedText;
 				this.onPromptFormatChange();
@@ -120,6 +131,9 @@ export class PromptComposerComponent implements OnInit {
 			})
 			.catch((error: any) => {
 				this.toast.addToast("Error enhancing prompt: " + error);
+			})
+			.finally(() => {
+				this.isEnhancing = false;
 			});
 	}
 }
