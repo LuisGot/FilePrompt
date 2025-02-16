@@ -14,8 +14,8 @@ import { ToastService } from "../../services/toast.service";
 	templateUrl: "./prompt-composer.component.html",
 })
 export class PromptComposerComponent implements OnInit {
-	@Input() fileFormat!: () => string;
-	@Input() promptFormat!: () => string;
+	@Input() fileTemplate!: () => string;
+	@Input() promptTemplate!: () => string;
 	@Input() isCopying = false;
 	@Input() aggregatedMetrics?: {
 		size: number;
@@ -23,11 +23,11 @@ export class PromptComposerComponent implements OnInit {
 		tokenCount: number;
 	};
 	@Output() copyPrompt = new EventEmitter<void>();
-	@Output() fileFormatChange = new EventEmitter<string>();
-	@Output() promptFormatChange = new EventEmitter<string>();
+	@Output() fileTemplateChange = new EventEmitter<string>();
+	@Output() promptTemplateChange = new EventEmitter<string>();
 
-	localFileFormat = "";
-	localPromptFormat = "";
+	localFileTemplate = "";
+	localPromptTemplate = "";
 	presets: PromptPreset[] = [];
 	showPresetsModal = false;
 	showSavePresetDialog = false;
@@ -41,8 +41,8 @@ export class PromptComposerComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {
-		this.localFileFormat = this.fileFormat();
-		this.localPromptFormat = this.promptFormat();
+		this.localFileTemplate = this.fileTemplate();
+		this.localPromptTemplate = this.promptTemplate();
 		this.loadPresets();
 	}
 
@@ -50,14 +50,14 @@ export class PromptComposerComponent implements OnInit {
 		this.presets = this.presetService.getPresets();
 	}
 
-	onFileFormatChange(): void {
-		this.fileFormatChange.emit(this.localFileFormat);
-		localStorage.setItem("fileFormat", this.localFileFormat);
+	onFileTemplateChange(): void {
+		this.fileTemplateChange.emit(this.localFileTemplate);
+		localStorage.setItem("fileTemplate", this.localFileTemplate);
 	}
 
-	onPromptFormatChange(): void {
-		this.promptFormatChange.emit(this.localPromptFormat);
-		localStorage.setItem("promptFormat", this.localPromptFormat);
+	onPromptTemplateChange(): void {
+		this.promptTemplateChange.emit(this.localPromptTemplate);
+		localStorage.setItem("promptTemplate", this.localPromptTemplate);
 	}
 
 	onCopyPrompt(): void {
@@ -68,8 +68,8 @@ export class PromptComposerComponent implements OnInit {
 		if (this.newPresetName.trim()) {
 			this.presetService.savePreset(
 				this.newPresetName,
-				this.localFileFormat,
-				this.localPromptFormat
+				this.localFileTemplate,
+				this.localPromptTemplate
 			);
 			this.showSavePresetDialog = false;
 			this.newPresetName = "";
@@ -78,10 +78,10 @@ export class PromptComposerComponent implements OnInit {
 	}
 
 	loadPreset(preset: PromptPreset): void {
-		this.localFileFormat = preset.fileFormat;
-		this.localPromptFormat = preset.promptFormat;
-		this.onFileFormatChange();
-		this.onPromptFormatChange();
+		this.localFileTemplate = preset.fileTemplate;
+		this.localPromptTemplate = preset.promptTemplate;
+		this.onFileTemplateChange();
+		this.onPromptTemplateChange();
 		this.showPresetsModal = false;
 	}
 
@@ -103,30 +103,21 @@ export class PromptComposerComponent implements OnInit {
 	}
 
 	onEnhancePrompt(): void {
-		const providerUrl = localStorage.getItem("providerUrl") || "";
 		const model = localStorage.getItem("model") || "";
 		const apiKey = localStorage.getItem("apiKey") || "";
-		const ultimateMode = localStorage.getItem("ultimateMode") === "true";
 
-		if (!providerUrl || !model || !apiKey) {
-			this.toast.addToast(
-				"Please set provider URL, model, and API key in settings."
-			);
+		if (!model || !apiKey) {
+			this.toast.addToast("Please set model and API key in settings.");
 			return;
 		}
 
 		this.isEnhancing = true;
+
 		this.tauriService
-			.enhancePrompt(
-				providerUrl,
-				model,
-				apiKey,
-				this.localPromptFormat,
-				ultimateMode
-			)
+			.enhancePrompt(model, apiKey, this.localPromptTemplate)
 			.then((enhancedText: string) => {
-				this.localPromptFormat = enhancedText;
-				this.onPromptFormatChange();
+				this.localPromptTemplate = enhancedText;
+				this.onPromptTemplateChange();
 				this.toast.addToast("Successfully enhanced prompt!");
 			})
 			.catch((error: any) => {

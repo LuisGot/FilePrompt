@@ -33,11 +33,11 @@
 			class="w-1/2 p-6 flex flex-col bg-darkbg h-full min-h-0 overflow-hidden"
 		>
 			<app-prompt-composer
-				[promptFormat]="promptFormat"
-				[fileFormat]="fileFormat"
+				[promptTemplate]="promptTemplate"
+				[fileTemplate]="fileTemplate"
 				[isCopying]="isCopying()"
-				(fileFormatChange)="onFileFormatChange($event)"
-				(promptFormatChange)="onPromptFormatChange($event)"
+				(fileTemplateChange)="onFileTemplateChange($event)"
+				(promptTemplateChange)="onPromptTemplateChange($event)"
 				(copyPrompt)="onCopyPrompt()"
 			></app-prompt-composer>
 		</section>

@@ -24,21 +24,21 @@ export class TauriService {
 	generateAndCopyPrompt(
 		folderPath: string,
 		files: { name: string; path: string }[],
-		fileFormat: string,
-		promptFormat: string
+		fileTemplate: string,
+		promptTemplate: string
 	): Promise<boolean> {
 		return invoke("generate_and_copy_prompt", {
-			args: { folderPath, files, fileFormat, promptFormat },
+			args: { folderPath, files, fileTemplate, promptTemplate },
 		});
 	}
 
 	copyFile(
 		file: { name: string; path: string },
 		folderPath: string,
-		fileFormat: string
+		fileTemplate: string
 	): Promise<boolean> {
 		return invoke("copy_file", {
-			args: { file, folderPath, fileFormat },
+			args: { file, folderPath, fileTemplate },
 		});
 	}
 
@@ -55,19 +55,15 @@ export class TauriService {
 	}
 
 	async enhancePrompt(
-		providerUrl: string,
 		model: string,
 		apiKey: string,
-		promptFormat: string,
-		ultimateMode: boolean
+		promptTemplate: string
 	): Promise<string> {
 		return await invoke("enhance_prompt", {
 			args: {
-				provider_url: providerUrl,
 				model,
 				api_key: apiKey,
-				prompt_format: promptFormat,
-				ultimate_mode: ultimateMode,
+				prompt_template: promptTemplate,
 			},
 		});
 	}

@@ -3,8 +3,8 @@ import { Injectable } from "@angular/core";
 export interface PromptPreset {
 	id: string;
 	name: string;
-	fileFormat: string;
-	promptFormat: string;
+	fileTemplate: string;
+	promptTemplate: string;
 }
 
 @Injectable({
@@ -20,15 +20,15 @@ export class PresetService {
 
 	savePreset(
 		name: string,
-		fileFormat: string,
-		promptFormat: string
+		fileTemplate: string,
+		promptTemplate: string
 	): PromptPreset {
 		const presets = this.getPresets();
 		const newPreset: PromptPreset = {
 			id: crypto.randomUUID(),
 			name,
-			fileFormat,
-			promptFormat,
+			fileTemplate,
+			promptTemplate,
 		};
 		presets.push(newPreset);
 		localStorage.setItem(this.PRESETS_KEY, JSON.stringify(presets));

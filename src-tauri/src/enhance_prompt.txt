@@ -59,14 +59,16 @@
     <instruction>The user-instructions should be the instructions that the user wants to be
         executed.</instruction>
     <instruction>Exclude CDATA sections in your output.</instruction>
-    <instruction>Response exclusively with the desired output text prompt, no other text or
-        comments. The output should not be in a codeblock.</instruction>
+    <instruction>Response exclusively with the desired output text prompt in the output-format, no
+        other text or
+        comments.</instruction>
+    <instruction>The output should never be in a markdown xml codeblock or CDATA section. Just
+        plain text.</instruction>
     <instruction>If the user-input is structured like the input-format, use it as is. If it's not,
         infer the purpose, instructions, output-format and user-instructions from the user-input.</instruction>
     <instruction>The goal is to fill in the blanks and best infer the purpose, instructions,
         output-format, user-instructions from the user-input. If instructions are given, use them to
-        guide
-        the other xml blocks.</instruction>
+        guide the other xml blocks.</instruction>
     <instruction>Emphasize exact XML structure and nesting. Clearly define which blocks must contain
         which elements to ensure a well-formed output.</instruction>
     <instruction>Ensure that each section builds logically upon the previous ones, creating a
@@ -86,7 +88,7 @@
 </input-format>
 
 <output-format>
-    [[raw-xml-prompt-text]]
+    [[prompt]]
 </output-format>
 
 <examples>
@@ -389,4 +391,4 @@ Your updated codebase with the error fixed:
 <user-input>
     [[user-input]]
 </user-input>
-Your improved prompt xml text:
+Your improved prompt:

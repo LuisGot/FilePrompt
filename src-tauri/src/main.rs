@@ -198,8 +198,8 @@ struct FileNodeInput {
 struct GeneratePromptArgs {
     folder_path: String,
     files: Vec<FileNodeInput>,
-    file_format: String,
-    prompt_format: String,
+    file_template: String,
+    prompt_template: String,
 }
 
 #[tauri::command]
@@ -220,10 +220,10 @@ async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, Stri
             ("{{file_path}}", relative.as_str()),
             ("{{file_content}}", content.as_str()),
         ];
-        let file_output = apply_template(&args.file_format, &replacements);
+        let file_output = apply_template(&args.file_template, &replacements);
         aggregated.push_str(&file_output);
     }
-    let final_output = args.prompt_format.replacen("{{files}}", &aggregated, 1);
+    let final_output = args.prompt_template.replacen("{{files}}", &aggregated, 1);
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
     clipboard
         .set_text(final_output)
@@ -236,7 +236,7 @@ async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, Stri
 struct CopyFileArgs {
     file: FileNodeInput,
     folder_path: String,
-    file_format: String,
+    file_template: String,
 }
 
 #[tauri::command]
@@ -256,7 +256,7 @@ async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
         ("{{file_path}}", relative.as_str()),
         ("{{file_content}}", content.as_str()),
     ];
-    let output = apply_template(&args.file_format, &replacements);
+    let output = apply_template(&args.file_template, &replacements);
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
     clipboard.set_text(output).map_err(|e| e.to_string())?;
     Ok(true)
@@ -264,36 +264,26 @@ async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
 
 #[derive(Deserialize)]
 struct EnhancePromptArgs {
-    provider_url: String,
     model: String,
     api_key: String,
-    prompt_format: String,
-    ultimate_mode: bool,
+    prompt_template: String,
 }
 
 #[tauri::command]
 async fn enhance_prompt(args: EnhancePromptArgs) -> Result<String, String> {
-    // Read the appropriate prompt template based on ultimate_mode
-    let template_path = if args.ultimate_mode {
-        "src/ultimate_prompt_template.txt"
-    } else {
-        "src/prompt_template.txt"
-    };
-
-    let template = fs::read_to_string(template_path)
+    let template = fs::read_to_string("src/enhance_prompt.txt")
         .map_err(|e| format!("Failed to read prompt template: {}", e))?;
 
     // Replace the placeholder with the user's input
-    let prompt = template.replace("[[user-input]]", &args.prompt_format);
+    let prompt = template.replace("[[user-input]]", &args.prompt_template);
 
     let client = reqwest::Client::new();
     let body = serde_json::json!({
-        "messages": [{"role": "user", "content": prompt}],
         "model": args.model,
-        "reasoning_format": "hidden",
+        "prompt": prompt
     });
     let res = client
-        .post(&args.provider_url)
+        .post("https://openrouter.ai/api/v1/completions")
         .header("Authorization", format!("Bearer {}", args.api_key))
         .header("Content-Type", "application/json")
         .json(&body)
@@ -301,8 +291,8 @@ async fn enhance_prompt(args: EnhancePromptArgs) -> Result<String, String> {
         .await
         .map_err(|e| e.to_string())?;
     let json: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
-    if let Some(content) = json["choices"][0]["message"]["content"].as_str() {
-        Ok(content.to_string())
+    if let Some(text) = json["choices"][0]["text"].as_str() {
+        Ok(text.to_string())
     } else {
         Err("Invalid response format".into())
     }

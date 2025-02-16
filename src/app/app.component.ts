@@ -28,12 +28,12 @@ import { SettingsModalComponent } from "./components/settings-modal/settings-mod
 	templateUrl: "./app.component.html",
 })
 export class AppComponent implements OnInit {
-	fileFormat = signal<string>(
-		localStorage.getItem("fileFormat") ||
+	fileTemplate = signal<string>(
+		localStorage.getItem("fileTemplate") ||
 			"File: {{file_name}}\nPath: {{file_path}}\nContent:\n{{file_content}}\n\n"
 	);
-	promptFormat = signal<string>(
-		localStorage.getItem("promptFormat") || "{{files}}"
+	promptTemplate = signal<string>(
+		localStorage.getItem("promptTemplate") || "{{files}}"
 	);
 	showComposer = signal<boolean>(true);
 	showSettings = signal<boolean>(false);
@@ -125,8 +125,8 @@ export class AppComponent implements OnInit {
 			.generateAndCopyPrompt(
 				this.currentFolderPath,
 				selectedFiles,
-				this.fileFormat(),
-				this.promptFormat()
+				this.fileTemplate(),
+				this.promptTemplate()
 			)
 			.then((result: boolean) => {
 				if (result) {
@@ -151,7 +151,7 @@ export class AppComponent implements OnInit {
 			.copyFile(
 				{ name: file.name, path: file.path },
 				this.currentFolderPath,
-				this.fileFormat()
+				this.fileTemplate()
 			)
 			.then((result: boolean) => {
 				if (result) {
@@ -163,14 +163,14 @@ export class AppComponent implements OnInit {
 			});
 	}
 
-	// Update file format
-	onFileFormatChange(newFormat: string): void {
-		this.fileFormat.set(newFormat);
+	// Update file template
+	onFileTemplateChange(newTemplate: string): void {
+		this.fileTemplate.set(newTemplate);
 	}
 
-	// Update prompt format
-	onPromptFormatChange(newFormat: string): void {
-		this.promptFormat.set(newFormat);
+	// Update prompt template
+	onPromptTemplateChange(newTemplate: string): void {
+		this.promptTemplate.set(newTemplate);
 	}
 
 	// Recursively collect selected file nodes

@@ -4,12 +4,12 @@
 		id="composer-content"
 		class="flex-1 space-y-6 overflow-y-auto px-6 py-4 pb-24"
 	>
-		<!-- Prompt Format Section -->
+		<!-- Prompt Template Section -->
 		<section>
 			<div class="flex justify-between items-center mb-3">
 				<h3 class="text-lg font-semibold flex items-center gap-2">
 					<img src="assets/icons/settings.svg" alt="settings" class="w-5 h-5" />
-					Prompt Format
+					Prompt Template
 				</h3>
 				<button
 					(click)="openPresetsModal()"
@@ -20,10 +20,10 @@
 				</button>
 			</div>
 			<textarea
-				[(ngModel)]="localPromptFormat"
-				(ngModelChange)="onPromptFormatChange()"
-				rows="10"
-				placeholder="Enter full content format here..."
+				[(ngModel)]="localPromptTemplate"
+				(ngModelChange)="onPromptTemplateChange()"
+				rows="14"
+				placeholder="Enter full content template here..."
 				[disabled]="isEnhancing"
 				class="w-full bg-darkprimary/50 resize-none rounded-xl p-4 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 placeholder-neutral-500 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
 			></textarea>
@@ -75,17 +75,17 @@
 			</div>
 		</section>
 
-		<!-- File Format Section -->
+		<!-- File Template Section -->
 		<section>
 			<h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
 				<img src="assets/icons/file.svg" alt="file" class="w-5 h-5" />
-				File Format
+				File Template
 			</h3>
 			<textarea
-				[(ngModel)]="localFileFormat"
-				(ngModelChange)="onFileFormatChange()"
+				[(ngModel)]="localFileTemplate"
+				(ngModelChange)="onFileTemplateChange()"
 				rows="8"
-				placeholder="Enter file copy format here..."
+				placeholder="Enter file copy template here..."
 				class="w-full bg-darkprimary/50 resize-none rounded-xl p-4 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 placeholder-neutral-500 transition-all duration-300 ease-in-out"
 			></textarea>
 			<p
