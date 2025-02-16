@@ -274,13 +274,52 @@ async fn enhance_prompt(args: EnhancePromptArgs) -> Result<String, String> {
     let template = fs::read_to_string("src/enhance_prompt.txt")
         .map_err(|e| format!("Failed to read prompt template: {}", e))?;
 
-    // Replace the placeholder with the user's input
-    let prompt = template.replace("[[user-input]]", &args.prompt_template);
+    // Replace the placeholder with the user's prompt
+    let prompt = template.replace("%%prompt%%", &args.prompt_template);
 
     let client = reqwest::Client::new();
     let body = serde_json::json!({
         "model": args.model,
-        "prompt": prompt
+        "prompt": prompt,
+        "include_reasoning": false
+    });
+    let res = client
+        .post("https://openrouter.ai/api/v1/completions")
+        .header("Authorization", format!("Bearer {}", args.api_key))
+        .header("Content-Type", "application/json")
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let json: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
+    if let Some(text) = json["choices"][0]["text"].as_str() {
+        Ok(text.to_string())
+    } else {
+        Err("Invalid response format".into())
+    }
+}
+
+// Add new struct and command for converting prompt
+#[derive(Deserialize)]
+struct ConvertPromptArgs {
+    model: String,
+    api_key: String,
+    prompt_template: String,
+    format: String,
+}
+
+#[tauri::command]
+async fn convert_prompt(args: ConvertPromptArgs) -> Result<String, String> {
+    let template = fs::read_to_string("src/convert_prompt.txt")
+        .map_err(|e| format!("Failed to read conversion prompt template: {}", e))?;
+    let prompt = template
+        .replace("%%format%%", &args.format)
+        .replace("%%prompt%%", &args.prompt_template);
+    let client = reqwest::Client::new();
+    let body = serde_json::json!({
+        "model": args.model,
+        "prompt": prompt,
+        "include_reasoning": false
     });
     let res = client
         .post("https://openrouter.ai/api/v1/completions")
@@ -308,7 +347,8 @@ fn main() {
             generate_and_copy_prompt,
             copy_file,
             get_file_metrics,
-            enhance_prompt
+            enhance_prompt,
+            convert_prompt
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

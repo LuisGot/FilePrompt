@@ -1,0 +1,188 @@
+<purpose>
+    Your task is to convert a prompt likely used for a coding task into a different format.
+</purpose>
+
+<instructions>
+    <instruction>Analyze the user-input carefully, paying attention to the prompt and the format.</instruction>
+    <instruction>Convert the prompt into the new specified format.</instruction>
+    <instruction>If you receive a prompt in no format, infer the format from the prompt and stick to
+        the examples.</instruction>
+    <instruction>If the prompt is already in the specified format, return the prompt as is.</instruction>
+    <instruction>Output only the converted prompt, no other text.</instruction>
+    <instruction>Output the converted prompt as plain text. No markdown codeblock.</instruction>
+    <instruction>The user input prompt is likely used for a coding task. The prompt is likely
+        structured like the examples and include the placeholder "{{files}}" that will get replaced
+        with the actual codebase.</instruction>
+    <instruction>Ensure all sections of the prompt are present in the output and no information is
+        lost.</instruction>
+    <instruction>Do not rename sections of the prompt. Keep the original section names and convert
+        them exactly as they are.</instruction>
+    <instruction>Include a placeholder for the user-code that will get replaced with the actual
+        codebase: {{files}}.</instruction>
+</instructions>
+
+<examples>
+    <example>
+        <input>
+            <prompt>
+                Add a feature to the codebase that allows the user to add a new user to the
+                database. {{files}}
+            </prompt>
+            <format>
+                Markdown
+            </format>
+        </input>
+        <output>
+            # Task:
+            Add a feature to the codebase that allows the user to add a new user to the
+            database.
+
+            # Codebase:
+            {{files}}
+        </output>
+    </example>
+    <example>
+        <input>
+            <prompt>
+                I got following error when clicking the Submit button: Uncaught TypeError: Cannot
+                read properties of null (reading 'addEventListener')
+                Please fix the error and return the fixed code.
+
+                {{files}}
+            </prompt>
+            <format>
+                Markdown
+            </format>
+        </input>
+        <output>
+            # Task:
+            I got following error when clicking the Submit button: "Uncaught TypeError: Cannot
+            read properties of null (reading 'addEventListener')".
+            Please fix the error and return the fixed code.
+
+            # Codebase:
+            {{files}}
+        </output>
+    </example>
+    <example>
+        <input>
+            <prompt>
+                I want you to add a new feature:
+                - When clicking on the "Generate" button a modal should appear with a text area and
+                a
+                submit button.
+                - When the user enters a prompt and clicks the submit button, the modal should
+                disappear and the generated text should be displayed in the text area.
+                - Also add error handling so that the modal does not disappear if the user
+                clicks the submit button without entering a prompt.
+
+                {{files}}
+            </prompt>
+            <format>
+                Markdown
+            </format>
+        </input>
+        <output>
+            # Task:
+            I want you to add a new feature:
+            - When clicking on the "Generate" button a modal should appear with a text area and a
+            submit button.
+            - When the user enters a prompt and clicks the submit button, the modal should
+            disappear and the generated text should be displayed in the text area.
+            - Also add error handling so that the modal does not disappear if the user
+            clicks the submit button without entering a prompt.
+
+            # Codebase:
+            {{files}}
+        </output>
+    </example>
+    <example>
+        <input>
+            <prompt>
+                I got following error when clicking the Submit button: Uncaught TypeError: Cannot
+                read properties of null (reading 'addEventListener')
+                Please fix the error and return the fixed code.
+
+                {{files}}
+            </prompt>
+            <format>
+                XML
+            </format>
+        </input>
+        <output>
+            <task>
+                I got following error when clicking the Submit button: "Uncaught TypeError: Cannot
+                read properties of null (reading 'addEventListener')".
+                Please fix the error and return the fixed code.
+            </task>
+            <codebase>
+                {{files}}
+            </codebase>
+        </output>
+    </example>
+    <example>
+        <input>
+            <prompt>
+                I got following error when clicking the Submit button: Uncaught TypeError: Cannot
+                read properties of null (reading 'addEventListener')
+                Please fix the error and return the fixed code.
+
+                {{files}}
+            </prompt>
+            <format>
+                XML
+            </format>
+        </input>
+        <output>
+            <task>
+                I got following error when clicking the Submit button: "Uncaught TypeError: Cannot
+                read properties of null (reading 'addEventListener')".
+                Please fix the error and return the fixed code.
+            </task>
+            <codebase>
+                {{files}}
+            </codebase>
+        </output>
+    </example>
+    <example>
+        <input>
+            <prompt>
+                I want you to add a new feature:
+                - When clicking on the "Generate" button a modal should appear with a text area and
+                a submit button.
+                - When the user enters a prompt and clicks the submit button, the modal should
+                disappear and the generated text should be displayed in the text area.
+                - Also add error handling so that the modal does not disappear if the user
+                clicks the submit button without entering a prompt.
+
+                {{files}}
+            </prompt>
+            <format>
+                XML
+            </format>
+        </input>
+        <output>
+            <task>
+                I want you to add a new feature:
+                - When clicking on the "Generate" button a modal should appear with a text area and
+                a submit button.
+                - When the user enters a prompt and clicks the submit button, the modal should
+                disappear and the generated text should be displayed in the text area.
+                - Also add error handling so that the modal does not disappear if the user
+                clicks the submit button without entering a prompt.
+            </task>
+            <codebase>
+                {{files}}
+            </codebase>
+        </output>
+    </example>
+</examples>
+
+<user-input>
+    <prompt>
+        %%prompt%%
+    </prompt>
+    <format>
+        %%format%%
+    </format>
+</user-input>

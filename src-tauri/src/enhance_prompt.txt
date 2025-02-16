@@ -62,8 +62,8 @@
     <instruction>Response exclusively with the desired output text prompt in the output-format, no
         other text or
         comments.</instruction>
-    <instruction>The output should never be in a markdown xml codeblock or CDATA section. Just
-        plain text.</instruction>
+    <instruction>The output should never be wrapped inside a markdown codeblock or CDATA section.
+        Output only plain text.</instruction>
     <instruction>If the user-input is structured like the input-format, use it as is. If it's not,
         infer the purpose, instructions, output-format and user-instructions from the user-input.</instruction>
     <instruction>The goal is to fill in the blanks and best infer the purpose, instructions,
@@ -84,8 +84,7 @@
     The input format normally consists of the task, instructions, and user-code specified
     by the user with the placeholder "{{files}}".
     the input can vary at any time. If the input does not match the format, take all the information
-    from the input to create an ultimate suitable prompt as shown in the examples.
-</input-format>
+    from the input to create an ultimate suitable prompt as shown in the examples.</input-format>
 
 <output-format>
     [[prompt]]
@@ -389,6 +388,6 @@ Your updated codebase with the error fixed:
 </examples>
 
 <user-input>
-    [[user-input]]
+    %%prompt%%
 </user-input>
 Your improved prompt:

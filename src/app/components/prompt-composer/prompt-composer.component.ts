@@ -33,6 +33,8 @@ export class PromptComposerComponent implements OnInit {
 	showSavePresetDialog = false;
 	newPresetName = "";
 	isEnhancing = false;
+	isConverting = false;
+	showConvertDropdown = false;
 
 	constructor(
 		private presetService: PresetService,
@@ -103,6 +105,11 @@ export class PromptComposerComponent implements OnInit {
 	}
 
 	onEnhancePrompt(): void {
+		if (!this.localPromptTemplate.trim()) {
+			this.toast.addToast("Please enter a prompt before enhancing.");
+			return;
+		}
+
 		const model = localStorage.getItem("model") || "";
 		const apiKey = localStorage.getItem("apiKey") || "";
 
@@ -125,6 +132,41 @@ export class PromptComposerComponent implements OnInit {
 			})
 			.finally(() => {
 				this.isEnhancing = false;
+			});
+	}
+
+	toggleConvertDropdown(): void {
+		this.showConvertDropdown = !this.showConvertDropdown;
+	}
+
+	onConvert(format: string): void {
+		if (!this.localPromptTemplate.trim()) {
+			this.toast.addToast("Please enter a prompt before converting.");
+			return;
+		}
+
+		const model = localStorage.getItem("model") || "";
+		const apiKey = localStorage.getItem("apiKey") || "";
+		if (!model || !apiKey) {
+			this.toast.addToast("Please set model and API key in settings.");
+			return;
+		}
+
+		this.isConverting = true;
+		this.showConvertDropdown = false;
+
+		this.tauriService
+			.convertPrompt(model, apiKey, this.localPromptTemplate, format)
+			.then((convertedText: string) => {
+				this.localPromptTemplate = convertedText;
+				this.onPromptTemplateChange();
+				this.toast.addToast("Successfully converted prompt!");
+			})
+			.catch((error: any) => {
+				this.toast.addToast("Error converting prompt: " + error);
+			})
+			.finally(() => {
+				this.isConverting = false;
 			});
 	}
 }

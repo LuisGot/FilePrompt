@@ -67,4 +67,20 @@ export class TauriService {
 			},
 		});
 	}
+
+	async convertPrompt(
+		model: string,
+		apiKey: string,
+		promptTemplate: string,
+		format: string
+	): Promise<string> {
+		return await invoke("convert_prompt", {
+			args: {
+				model,
+				api_key: apiKey,
+				prompt_template: promptTemplate,
+				format,
+			},
+		});
+	}
 }

@@ -24,7 +24,7 @@
 				(ngModelChange)="onPromptTemplateChange()"
 				rows="14"
 				placeholder="Enter full content template here..."
-				[disabled]="isEnhancing"
+				[disabled]="isEnhancing || isConverting"
 				class="w-full bg-darkprimary/50 resize-none rounded-xl p-4 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 placeholder-neutral-500 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
 			></textarea>
 			<div
@@ -37,41 +37,97 @@
 						>{{ '{{files}}' }}</code
 					>
 				</div>
-				<button
-					(click)="onEnhancePrompt()"
-					[disabled]="isEnhancing"
-					class="bg-indigo-500 text-white px-6 py-2.5 rounded-xl hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-150 flex items-center gap-2 font-medium disabled:opacity-70 disabled:cursor-wait"
-				>
-					<div *ngIf="isEnhancing" class="animate-spin w-5 h-5">
-						<svg
+				<div class="flex gap-4 items-center relative">
+					<button
+						(click)="onEnhancePrompt()"
+						[disabled]="isEnhancing"
+						class="bg-indigo-500 text-white px-6 py-2.5 rounded-xl hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-150 flex items-center gap-2 font-medium disabled:opacity-70 disabled:cursor-wait"
+					>
+						<div *ngIf="isEnhancing" class="animate-spin w-5 h-5">
+							<svg
+								class="w-5 h-5"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								></circle>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								></path>
+							</svg>
+						</div>
+						<img
+							*ngIf="!isEnhancing"
+							src="assets/icons/sparkles.svg"
+							alt="enhance icon"
 							class="w-5 h-5"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
+						/>
+						<span>{{ isEnhancing ? "Enhancing..." : "Enhance" }}</span>
+					</button>
+					<div class="relative">
+						<button
+							(click)="toggleConvertDropdown()"
+							[disabled]="isConverting"
+							class="bg-indigo-500 text-white px-6 py-2.5 rounded-xl hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-150 flex items-center gap-2 font-medium disabled:opacity-70 disabled:cursor-wait"
 						>
-							<circle
-								class="opacity-25"
-								cx="12"
-								cy="12"
-								r="10"
-								stroke="currentColor"
-								stroke-width="4"
-							></circle>
-							<path
-								class="opacity-75"
-								fill="currentColor"
-								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-							></path>
-						</svg>
+							<div *ngIf="isConverting" class="animate-spin w-5 h-5">
+								<svg
+									class="w-5 h-5"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+								>
+									<circle
+										class="opacity-25"
+										cx="12"
+										cy="12"
+										r="10"
+										stroke="currentColor"
+										stroke-width="4"
+									></circle>
+									<path
+										class="opacity-75"
+										fill="currentColor"
+										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+									></path>
+								</svg>
+							</div>
+							<img
+								*ngIf="!isConverting"
+								src="assets/icons/transform.svg"
+								alt="convert icon"
+								class="w-5 h-5"
+							/>
+							<span>{{ isConverting ? "Converting..." : "Convert" }}</span>
+						</button>
+						<div
+							*ngIf="showConvertDropdown"
+							class="absolute right-0 mt-2 bg-darkprimary border border-neutral-700/50 rounded-md shadow-lg z-10"
+						>
+							<button
+								(click)="onConvert('XML')"
+								class="block w-full text-left px-4 py-2 hover:bg-neutral-700/30"
+							>
+								XML
+							</button>
+							<button
+								(click)="onConvert('Markdown')"
+								class="block w-full text-left px-4 py-2 hover:bg-neutral-700/30"
+							>
+								Markdown
+							</button>
+						</div>
 					</div>
-					<img
-						*ngIf="!isEnhancing"
-						src="assets/icons/sparkles.svg"
-						alt="enhance icon"
-						class="w-5 h-5"
-					/>
-					<span>{{ isEnhancing ? "Enhancing..." : "Enhance" }}</span>
-				</button>
+				</div>
 			</div>
 		</section>
 
