@@ -1,14 +1,15 @@
 <!-- Toast notification container -->
-<div
-	id="toast-container"
-	class="fixed bottom-5 left-5 space-y-2 z-50 text-lightprimary"
->
+<div id="toast-container" class="fixed bottom-4 left-4 space-y-1.5 z-50">
 	<div
 		*ngFor="let toast of toastService.toasts()"
 		(click)="remove(toast)"
-		class="bg-darkprimary px-4 py-3 rounded-lg cursor-pointer transition duration-300 shadow-lg hover:shadow-xl hover:bg-neutral-700 flex items-center gap-2 max-w-md"
+		class="bg-darkprimary/90 backdrop-blur-sm px-3 py-2 rounded-lg cursor-pointer transition-all duration-150 shadow-lg hover:shadow-xl hover:bg-neutral-700/90 flex items-center gap-1.5 max-w-md border border-neutral-700/30 text-xs text-neutral-100"
 	>
-		<img src="assets/icons/info.svg" alt="info" class="w-5 h-5" />
-		<span>{{ toast }}</span>
+		<img
+			src="assets/icons/info.svg"
+			alt="info"
+			class="w-3.5 h-3.5 opacity-60"
+		/>
+		<span class="whitespace-normal">{{ toast }}</span>
 	</div>
 </div>

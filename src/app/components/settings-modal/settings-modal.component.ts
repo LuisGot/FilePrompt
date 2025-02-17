@@ -26,10 +26,6 @@ export class SettingsModalComponent implements OnInit {
 		this.openRouterService.getModels().subscribe({
 			next: (response) => {
 				this.availableModels = response.data;
-				// If no model is selected and we have models available, select the first one
-				if (!this.model && this.availableModels.length > 0) {
-					this.model = this.availableModels[0].id;
-				}
 			},
 			error: (error) => {
 				console.error("Error loading models:", error);
