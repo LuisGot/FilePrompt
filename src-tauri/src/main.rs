@@ -10,6 +10,8 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
 use tiktoken_rs::tiktoken::p50k_base;
+use std::collections::BTreeMap;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
 struct FileNode {
@@ -205,7 +207,7 @@ struct GeneratePromptArgs {
 #[tauri::command]
 async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, String> {
     let mut aggregated = String::new();
-    for file in args.files {
+    for file in &args.files {
         let content = match fs::read_to_string(&file.path) {
             Ok(c) => c,
             Err(_) => continue,
@@ -223,7 +225,9 @@ async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, Stri
         let file_output = apply_template(&args.file_template, &replacements);
         aggregated.push_str(&file_output);
     }
-    let final_output = args.prompt_template.replacen("{{files}}", &aggregated, 1);
+    let mut final_output = args.prompt_template.replacen("{{files}}", &aggregated, 1);
+    let filetree = build_filetree(&args.folder_path, &args.files);
+    final_output = final_output.replacen("{{filetree}}", &filetree, 1);
     let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
     clipboard
         .set_text(final_output)
@@ -335,6 +339,62 @@ async fn convert_prompt(args: ConvertPromptArgs) -> Result<String, String> {
     } else {
         Err("Invalid response format".into())
     }
+}
+
+// New code added for generating file tree representation based on selected files
+#[derive(Default)]
+struct TreeNode {
+    children: BTreeMap<String, TreeNode>,
+    is_file: bool,
+}
+
+impl TreeNode {
+    fn new() -> Self {
+        TreeNode { children: BTreeMap::new(), is_file: false }
+    }
+
+    fn insert(&mut self, parts: &[String]) {
+        if parts.is_empty() {
+            return;
+        }
+        let head = &parts[0];
+        let node = self.children.entry(head.clone()).or_insert(TreeNode::new());
+        if parts.len() == 1 {
+            node.is_file = true;
+        } else {
+            node.insert(&parts[1..]);
+        }
+    }
+
+    fn to_string_tree(&self, prefix: &str) -> String {
+        let mut result = String::new();
+        let count = self.children.len();
+        for (i, (key, node)) in self.children.iter().enumerate() {
+            let is_last = i == count - 1;
+            let connector = if is_last { "└── " } else { "├── " };
+            result.push_str(prefix);
+            result.push_str(connector);
+            result.push_str(key);
+            result.push('\n');
+            let new_prefix = if is_last { format!("{}    ", prefix) } else { format!("{}│   ", prefix) };
+            result.push_str(&node.to_string_tree(&new_prefix));
+        }
+        result
+    }
+}
+
+fn build_filetree(folder_path: &str, files: &Vec<FileNodeInput>) -> String {
+    let mut root = TreeNode::new();
+    let folder = Path::new(folder_path);
+    for file in files {
+        let file_path = Path::new(&file.path);
+        let relative = file_path.strip_prefix(folder).unwrap_or(file_path);
+        let parts: Vec<String> = relative.components()
+            .map(|c| c.as_os_str().to_string_lossy().to_string())
+            .collect();
+        root.insert(&parts);
+    }
+    root.to_string_tree("")
 }
 
 fn main() {
