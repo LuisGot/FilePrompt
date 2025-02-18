@@ -29,30 +29,19 @@
 					(click)="$event.stopPropagation()"
 					class="w-3.5 h-3.5 rounded-[4px] border-[1.5px] border-neutral-500 bg-transparent appearance-none cursor-pointer checked:border-indigo-500 checked:bg-indigo-500 hover:border-indigo-400 transition-all duration-150"
 				/>
-				<svg
-					class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 check-icon transition-opacity duration-150"
+				<img
+					src="assets/icons/check.svg"
+					alt="check icon"
+					class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 transition-opacity duration-150"
 					[class.opacity-100]="node.selected"
-					viewBox="0 0 12 12"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<path
-						d="M2.5 6L5 8.5L9.5 4"
-						stroke="white"
-						stroke-width="1.5"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-				</svg>
+				/>
 			</div>
 			<img
 				src="assets/icons/folder-closed.svg"
 				alt="folder icon"
 				class="w-4 h-4"
 			/>
-			<span class="text-sm text-neutral-200 hover:text-white">{{
-				node.name
-			}}</span>
+			<span class="text-sm text-lightprimary">{{ node.name }}</span>
 		</div>
 		<!-- File Node -->
 		<div
@@ -71,25 +60,16 @@
 						(click)="$event.stopPropagation()"
 						class="w-3.5 h-3.5 rounded-[4px] border-[1.5px] border-neutral-500 bg-transparent appearance-none cursor-pointer checked:border-indigo-500 checked:bg-indigo-500 hover:border-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
 					/>
-					<svg
-						class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 check-icon transition-opacity duration-150"
+					<img
+						src="assets/icons/check.svg"
+						alt="check icon"
+						class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 transition-opacity duration-150"
 						[class.opacity-100]="node.selected"
-						viewBox="0 0 12 12"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M2.5 6L5 8.5L9.5 4"
-							stroke="white"
-							stroke-width="1.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						/>
-					</svg>
+					/>
 				</div>
 				<img src="assets/icons/file.svg" alt="file icon" class="w-4 h-4" />
 				<span
-					class="text-sm text-neutral-200 hover:text-white"
+					class="text-sm text-lightprimary"
 					[class.cursor-not-allowed]="!isTextFile(node)"
 					[class.text-neutral-500]="!isTextFile(node)"
 				>

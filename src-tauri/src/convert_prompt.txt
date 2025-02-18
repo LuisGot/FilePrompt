@@ -19,6 +19,9 @@
         them exactly as they are.</instruction>
     <instruction>Include a placeholder for the user-code that will get replaced with the actual
         codebase: {{files}}.</instruction>
+    <instruction>If the user-input contains a filetree placeholder, also include a placeholder for
+        the filetree in
+        the format {{filetree}}.</instruction>
 </instructions>
 
 <examples>
@@ -49,6 +52,8 @@
                 Please fix the error and return the fixed code.
 
                 {{files}}
+
+                {{filetree}}
             </prompt>
             <format>
                 Markdown
@@ -62,6 +67,9 @@
 
             # Codebase:
             {{files}}
+
+            # Filetree:
+            {{filetree}}
         </output>
     </example>
     <example>
@@ -75,6 +83,8 @@
                 disappear and the generated text should be displayed in the text area.
                 - Also add error handling so that the modal does not disappear if the user
                 clicks the submit button without entering a prompt.
+
+                {{filetree}}
 
                 {{files}}
             </prompt>
@@ -92,6 +102,9 @@
             - Also add error handling so that the modal does not disappear if the user
             clicks the submit button without entering a prompt.
 
+            # Filetree:
+            {{filetree}}
+
             # Codebase:
             {{files}}
         </output>
@@ -99,11 +112,8 @@
     <example>
         <input>
             <prompt>
-                I got following error when clicking the Submit button: Uncaught TypeError: Cannot
-                read properties of null (reading 'addEventListener')
-                Please fix the error and return the fixed code.
-
-                {{files}}
+                Add a feature to the codebase that allows the user to add a new user to the
+                database. {{files}}
             </prompt>
             <format>
                 XML
@@ -111,9 +121,8 @@
         </input>
         <output>
             <task>
-                I got following error when clicking the Submit button: "Uncaught TypeError: Cannot
-                read properties of null (reading 'addEventListener')".
-                Please fix the error and return the fixed code.
+                Add a feature to the codebase that allows the user to add a new user to the
+                database.
             </task>
             <codebase>
                 {{files}}
@@ -128,6 +137,8 @@
                 Please fix the error and return the fixed code.
 
                 {{files}}
+
+                {{filetree}}
             </prompt>
             <format>
                 XML
@@ -142,6 +153,9 @@
             <codebase>
                 {{files}}
             </codebase>
+            <filetree>
+                {{filetree}}
+            </filetree>
         </output>
     </example>
     <example>
@@ -154,6 +168,8 @@
                 disappear and the generated text should be displayed in the text area.
                 - Also add error handling so that the modal does not disappear if the user
                 clicks the submit button without entering a prompt.
+
+                {{filetree}}
 
                 {{files}}
             </prompt>
@@ -171,6 +187,9 @@
                 - Also add error handling so that the modal does not disappear if the user
                 clicks the submit button without entering a prompt.
             </task>
+            <filetree>
+                {{filetree}}
+            </filetree>
             <codebase>
                 {{files}}
             </codebase>

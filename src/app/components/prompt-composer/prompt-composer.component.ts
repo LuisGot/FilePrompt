@@ -106,7 +106,7 @@ export class PromptComposerComponent implements OnInit {
 
 	onEnhancePrompt(): void {
 		if (!this.localPromptTemplate.trim()) {
-			this.toast.addToast("Please enter a prompt before enhancing.");
+			this.toast.addToast("Please enter a prompt to enhance.");
 			return;
 		}
 
@@ -114,7 +114,9 @@ export class PromptComposerComponent implements OnInit {
 		const apiKey = localStorage.getItem("apiKey") || "";
 
 		if (!model || !apiKey) {
-			this.toast.addToast("Please set model and API key in settings.");
+			this.toast.addToast(
+				"Please configure your model and API key in the settings."
+			);
 			return;
 		}
 
@@ -125,10 +127,12 @@ export class PromptComposerComponent implements OnInit {
 			.then((enhancedText: string) => {
 				this.localPromptTemplate = enhancedText;
 				this.onPromptTemplateChange();
-				this.toast.addToast("Successfully enhanced prompt!");
+				this.toast.addToast("Your prompt was successfully enhanced!");
 			})
-			.catch((error: any) => {
-				this.toast.addToast("Error enhancing prompt: " + error);
+			.catch(() => {
+				this.toast.addToast(
+					"An error occurred while enhancing the prompt. Please try again."
+				);
 			})
 			.finally(() => {
 				this.isEnhancing = false;
@@ -141,14 +145,16 @@ export class PromptComposerComponent implements OnInit {
 
 	onConvert(format: string): void {
 		if (!this.localPromptTemplate.trim()) {
-			this.toast.addToast("Please enter a prompt before converting.");
+			this.toast.addToast("Please enter a prompt to convert.");
 			return;
 		}
 
 		const model = localStorage.getItem("model") || "";
 		const apiKey = localStorage.getItem("apiKey") || "";
 		if (!model || !apiKey) {
-			this.toast.addToast("Please set model and API key in settings.");
+			this.toast.addToast(
+				"Please configure your model and API key in the settings."
+			);
 			return;
 		}
 
@@ -160,10 +166,12 @@ export class PromptComposerComponent implements OnInit {
 			.then((convertedText: string) => {
 				this.localPromptTemplate = convertedText;
 				this.onPromptTemplateChange();
-				this.toast.addToast("Successfully converted prompt!");
+				this.toast.addToast("Your prompt was successfully converted!");
 			})
-			.catch((error: any) => {
-				this.toast.addToast("Error converting prompt: " + error);
+			.catch(() => {
+				this.toast.addToast(
+					"An error occurred while converting the prompt. Please try again."
+				);
 			})
 			.finally(() => {
 				this.isConverting = false;

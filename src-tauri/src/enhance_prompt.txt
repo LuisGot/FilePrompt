@@ -224,7 +224,9 @@ Your updated codebase:
 </output-instructions>
 <output-format>
     # Folder Tree
+    ```
     [[folder-tree]]
+    ```
     \n
     # Files
     ## [[file-name]]
@@ -290,20 +292,22 @@ Your refactored codebase:
 </instructions>
 <output-format>
     # Updated Filetree:
+    ```
     [[updated-filetree]]
+    ```
     \n
     \n
     # Updated Files:
-    ## [[updated-file-1]]
-    ### [[updated-file-1-path]]
+    ## [[updated-file-name-1]]
+    ### [[updated-file-path-1]]
     ```
-    [[updated-file-1-content]]
+    [[updated-file-content-1]]
     ```
     \n
-    ## [[updated-file-2]]
-    ### [[updated-file-2-path]]
+    ## [[updated-file-name-2]]
+    ### [[updated-file-path-2]]
     ```
-    [[updated-file-2-content]]
+    [[updated-file-content-2]]
     ```
     ...
     \n
@@ -362,20 +366,22 @@ Your updated codebase with the error fixed:
 </instructions>
 <output-format>
     # Updated Filetree:
+    ```
     [[updated-filetree]]
+    ```
     \n
     \n
     # Updated Files:
-    ## [[updated-file-1]]
-    ### Path: [[updated-file-1-path]]
+    ## [[updated-file-name-1]]
+    ### Path: [[updated-file-path-1]]
     ```
-    [[updated-file-1-content]]
+    [[updated-file-content-1]]
     ```
     \n
-    ## [[updated-file-2]]
-    ### Path: [[updated-file-2-path]]
+    ## [[updated-file-name-2]]
+    ### Path: [[updated-file-path-2]]
     ```
-    [[updated-file-2-content]]
+    [[updated-file-content-2]]
     ```
     \n
     ...

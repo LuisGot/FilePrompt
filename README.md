@@ -1,6 +1,6 @@
 # FilePrompt
 
-A modern desktop application that transforms your codebase into customizable prompts through an intuitive file explorer and integrated prompt composer.
+A modern desktop application that transforms your codebase into customizable prompts for LLM's through an intuitive file explorer and integrated prompt composer.
 
 ## Table of Contents
 
@@ -82,23 +82,15 @@ FilePrompt lets you easily generate and enhance code prompts from your project f
 
 3. **Development:**
 
-   - Start the Angular development server:
+   - In a terminal, launch the Tauri application in development mode:
      ```bash
-     npm run start
-     ```
-   - In a separate terminal, launch the Tauri application in development mode:
-     ```bash
-     tauri dev
+     npm run tauri dev
      ```
 
 4. **Production Build:**
-   - Build the Angular application:
-     ```bash
-     npm run build
-     ```
    - Package the Tauri application:
      ```bash
-     tauri build
+     npm run tauri build
      ```
 
 **Contributing Guidelines:**
@@ -120,7 +112,7 @@ FilePrompt lets you easily generate and enhance code prompts from your project f
 
 - **API & Model Settings:**
   - Access the **Settings Modal** from the header.
-  - Enter your OpenRouter API key and select a model from the provided list.
+  - Enter your [OpenRouter API key](https://openrouter.ai/settings/keys) and select a model from the provided list.
   - These settings are required for the prompt enhancement and conversion features.
 
 **Environment & Build Configurations:**
@@ -149,4 +141,4 @@ FilePrompt lets you easily generate and enhance code prompts from your project f
   - Styled using Tailwind CSS for a sleek, dark-themed interface.
   - Toast notifications and interactive modals enhance user experience.
 
-Enjoy a seamless and efficient experience turning your codebase into actionable prompts with FilePrompt!
+Enjoy a seamless and efficient experience turning your codebase into actionable prompts for LLM's with FilePrompt!

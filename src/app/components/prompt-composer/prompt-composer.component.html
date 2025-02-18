@@ -1,284 +1,265 @@
 <!-- Clean desktop-like prompt composer -->
 <div class="flex flex-col h-full bg-darkbg text-lightprimary">
-  <div class="flex-1 space-y-4 p-4 overflow-y-auto">
-    <!-- Prompt Template Section -->
-    <section>
-      <div class="flex justify-between items-center mb-2">
-        <div class="flex items-center gap-2 text-sm">
-          <img
-            src="assets/icons/settings.svg"
-            alt="settings"
-            class="w-4 h-4 opacity-60"
-          />
-          Prompt Template
-        </div>
-        <button
-          (click)="openPresetsModal()"
-          class="text-xs px-3 py-1.5 rounded-lg bg-darkprimary/30 hover:bg-neutral-700/30 border border-neutral-700/30 transition-all flex items-center gap-1.5"
-        >
-          <img
-            src="assets/icons/bookmark.svg"
-            alt="presets"
-            class="w-3.5 h-3.5 opacity-60"
-          />
-          Presets
-        </button>
-      </div>
-      <textarea
-        [(ngModel)]="localPromptTemplate"
-        (ngModelChange)="onPromptTemplateChange()"
-        rows="12"
-        placeholder="Enter your prompt template..."
-        [disabled]="isEnhancing || isConverting"
-        class="w-full bg-darkprimary/20 text-sm rounded-lg p-3 outline-none border border-neutral-700/30 focus:border-indigo-500/50 placeholder-neutral-500 transition-all resize-none disabled:opacity-50"
-      ></textarea>
-      <div class="flex justify-between items-center mt-2 text-xs">
-        <div class="flex gap-2 flex-wrap">
-          <code
-            class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30 text-neutral-400"
-            >{{ '{{files}}' }}</code
-          >
-          <code
-            class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30 text-neutral-400"
-            >{{ '{{filetree}}' }}</code
-          >
-        </div>
-        <div class="flex gap-2">
-          <button
-            (click)="onEnhancePrompt()"
-            [disabled]="isEnhancing"
-            class="px-4 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 transition-all flex items-center gap-1.5 disabled:opacity-50"
-          >
-            <img
-              *ngIf="!isEnhancing"
-              src="assets/icons/sparkles.svg"
-              alt="enhance"
-              class="w-3.5 h-3.5"
-            />
-            <div *ngIf="isEnhancing" class="animate-spin w-3.5 h-3.5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-            </div>
-            <span class="text-xs">{{
-              isEnhancing ? "Enhancing..." : "Enhance"
-            }}</span>
-          </button>
-          <button
-            (click)="toggleConvertDropdown()"
-            [disabled]="isConverting"
-            class="px-4 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 transition-all flex items-center gap-1.5 disabled:opacity-50 relative"
-          >
-            <img
-              *ngIf="!isConverting"
-              src="assets/icons/transform.svg"
-              alt="convert"
-              class="w-3.5 h-3.5"
-            />
-            <span class="text-xs">{{
-              isConverting ? "Converting..." : "Convert"
-            }}</span>
-            <div
-              *ngIf="showConvertDropdown"
-              class="absolute right-0 top-full mt-1 bg-darkprimary/95 backdrop-blur-sm border border-neutral-700/30 rounded-lg shadow-lg overflow-hidden w-full"
-            >
-              <button
-                (click)="onConvert('XML')"
-                class="w-full text-left px-3 py-1.5 text-xs hover:bg-neutral-700/50 transition-all flex items-center gap-1.5"
-              >
-                XML
-              </button>
-              <button
-                (click)="onConvert('Markdown')"
-                class="w-full text-left px-3 py-1.5 text-xs hover:bg-neutral-700/50 transition-all flex items-center gap-1.5"
-              >
-                Markdown
-              </button>
-            </div>
-          </button>
-        </div>
-      </div>
-    </section>
+	<div class="flex-1 space-y-4 p-4 overflow-y-auto">
+		<!-- Prompt Template Section -->
+		<section>
+			<div class="flex justify-between items-center mb-2">
+				<div class="flex items-center gap-2 text-sm">
+					<img
+						src="assets/icons/settings.svg"
+						alt="settings"
+						class="w-4 h-4 opacity-60"
+					/>
+					Prompt Template
+				</div>
+				<button
+					(click)="openPresetsModal()"
+					class="text-xs px-3 py-1.5 rounded-lg bg-darkprimary/30 hover:bg-neutral-700/30 border border-neutral-700/30 transition-all flex items-center gap-1.5"
+				>
+					<img
+						src="assets/icons/bookmark.svg"
+						alt="presets"
+						class="w-3.5 h-3.5 opacity-60"
+					/>
+					Presets
+				</button>
+			</div>
+			<textarea
+				[(ngModel)]="localPromptTemplate"
+				(ngModelChange)="onPromptTemplateChange()"
+				rows="12"
+				placeholder="Edit prompt template..."
+				[disabled]="isEnhancing || isConverting"
+				class="w-full bg-darkprimary/20 text-sm rounded-lg p-3 outline-none border border-neutral-700/30 focus:border-indigo-500/50 placeholder-neutral-500 transition-all resize-none disabled:opacity-50"
+			></textarea>
+			<div class="flex justify-between items-center mt-2 text-xs">
+				<div class="flex gap-2 flex-wrap">
+					<code
+						class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30 text-neutral-400"
+						>{{ '{{files}}' }}</code
+					>
+					<code
+						class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30 text-neutral-400"
+						>{{ '{{filetree}}' }}</code
+					>
+				</div>
+				<div class="flex gap-2">
+					<button
+						(click)="onEnhancePrompt()"
+						[disabled]="isEnhancing"
+						class="px-4 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 transition-all flex items-center gap-1.5 disabled:opacity-50"
+					>
+						<img
+							*ngIf="!isEnhancing"
+							src="assets/icons/sparkles.svg"
+							alt="enhance"
+							class="w-3.5 h-3.5"
+						/>
+						<div *ngIf="isEnhancing" class="animate-spin w-3.5 h-3.5">
+							<img
+								src="assets/icons/spinner.svg"
+								alt="spinner icon"
+								class="w-full h-full"
+							/>
+						</div>
+						<span class="text-xs">{{
+							isEnhancing ? "Enhancing..." : "Enhance"
+						}}</span>
+					</button>
+					<button
+						(click)="toggleConvertDropdown()"
+						[disabled]="isConverting"
+						class="px-4 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 transition-all flex items-center gap-1.5 disabled:opacity-50 relative"
+					>
+						<img
+							*ngIf="!isConverting"
+							src="assets/icons/transform.svg"
+							alt="convert"
+							class="w-3.5 h-3.5"
+						/>
+						<div *ngIf="isConverting" class="animate-spin w-3.5 h-3.5">
+							<img
+								src="assets/icons/spinner.svg"
+								alt="spinner icon"
+								class="w-full h-full"
+							/>
+						</div>
+						<span class="text-xs">{{
+							isConverting ? "Converting..." : "Convert"
+						}}</span>
+						<div
+							*ngIf="showConvertDropdown"
+							class="absolute right-0 top-full mt-1 bg-darkprimary/95 backdrop-blur-sm border border-neutral-700/30 rounded-lg shadow-lg overflow-hidden w-full"
+						>
+							<button
+								(click)="onConvert('XML')"
+								class="w-full text-left px-3 py-1.5 text-xs hover:bg-neutral-700/50 transition-all flex items-center gap-1.5"
+							>
+								XML
+							</button>
+							<button
+								(click)="onConvert('Markdown')"
+								class="w-full text-left px-3 py-1.5 text-xs hover:bg-neutral-700/50 transition-all flex items-center gap-1.5"
+							>
+								Markdown
+							</button>
+						</div>
+					</button>
+				</div>
+			</div>
+		</section>
 
-    <!-- File Template Section -->
-    <section>
-      <div class="flex items-center gap-2 text-sm mb-2">
-        <img
-          src="assets/icons/file.svg"
-          alt="file"
-          class="w-4 h-4 opacity-60"
-        />
-        File Template
-      </div>
-      <textarea
-        [(ngModel)]="localFileTemplate"
-        (ngModelChange)="onFileTemplateChange()"
-        rows="6"
-        placeholder="Enter file template..."
-        class="w-full bg-darkprimary/20 text-sm rounded-lg p-3 outline-none border border-neutral-700/30 focus:border-indigo-500/50 placeholder-neutral-500 transition-all resize-none"
-      ></textarea>
-      <div class="flex gap-2 mt-2 text-xs text-neutral-400 flex-wrap">
-        <code
-          class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30"
-          >{{ '{{file_name}}' }}</code
-        >
-        <code
-          class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30"
-          >{{ '{{file_content}}' }}</code
-        >
-        <code
-          class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30"
-          >{{ '{{file_path}}' }}</code
-        >
-      </div>
-    </section>
-  </div>
+		<!-- File Template Section -->
+		<section>
+			<div class="flex items-center gap-2 text-sm mb-2">
+				<img
+					src="assets/icons/file.svg"
+					alt="file"
+					class="w-4 h-4 opacity-60"
+				/>
+				File Template
+			</div>
+			<textarea
+				[(ngModel)]="localFileTemplate"
+				(ngModelChange)="onFileTemplateChange()"
+				rows="6"
+				placeholder="Edit file template..."
+				class="w-full bg-darkprimary/20 text-sm rounded-lg p-3 outline-none border border-neutral-700/30 focus:border-indigo-500/50 placeholder-neutral-500 transition-all resize-none"
+			></textarea>
+			<div class="flex gap-2 mt-2 text-xs text-neutral-400 flex-wrap">
+				<code
+					class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30"
+					>{{ '{{file_name}}' }}</code
+				>
+				<code
+					class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30"
+					>{{ '{{file_content}}' }}</code
+				>
+				<code
+					class="bg-darkprimary/20 px-2 py-1 rounded-md border border-neutral-700/30"
+					>{{ '{{file_path}}' }}</code
+				>
+			</div>
+		</section>
+	</div>
 
-  <!-- Footer -->
-  <div
-    class="border-t border-neutral-700/30 p-4 flex justify-between items-center bg-darkbg/80 backdrop-blur-sm"
-  >
-    <button
-      (click)="onCopyPrompt()"
-      [disabled]="isCopying"
-      class="px-4 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 transition-all flex items-center gap-1.5 text-xs disabled:opacity-50"
-    >
-      <img
-        *ngIf="!isCopying"
-        src="assets/icons/copy.svg"
-        alt="copy"
-        class="w-3.5 h-3.5"
-      />
-      <span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
-    </button>
-    <div *ngIf="aggregatedMetrics" class="text-xs text-neutral-400 flex gap-2">
-      <span>{{ aggregatedMetrics.size | fileSize }}</span>
-      <span>•</span>
-      <span>{{ aggregatedMetrics.lineCount }} lines</span>
-      <span>•</span>
-      <span>{{ aggregatedMetrics.tokenCount | abbreviateNumber }} tokens</span>
-    </div>
-  </div>
+	<!-- Footer -->
+	<div
+		class="border-t border-neutral-700/30 p-4 flex justify-between items-center bg-darkbg/80 backdrop-blur-sm"
+	>
+		<button
+			(click)="onCopyPrompt()"
+			[disabled]="isCopying"
+			class="px-4 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 transition-all flex items-center gap-1.5 text-xs disabled:opacity-50"
+		>
+			<img
+				*ngIf="!isCopying"
+				src="assets/icons/copy.svg"
+				alt="copy"
+				class="w-3.5 h-3.5"
+			/>
+			<span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
+		</button>
+		<div *ngIf="aggregatedMetrics" class="text-xs text-neutral-400 flex gap-2">
+			<span>{{ aggregatedMetrics.size | fileSize }}</span>
+			<span>•</span>
+			<span>{{ aggregatedMetrics.lineCount }} lines</span>
+			<span>•</span>
+			<span>{{ aggregatedMetrics.tokenCount | abbreviateNumber }} tokens</span>
+		</div>
+	</div>
 </div>
 
 <!-- Simplified Presets Modal -->
 <div
-  *ngIf="showPresetsModal"
-  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-  (click)="closePresetsModal()"
+	*ngIf="showPresetsModal"
+	class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+	(click)="closePresetsModal()"
 >
-  <div
-    class="bg-darkbg border border-neutral-700/30 rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
-    (click)="$event.stopPropagation()"
-  >
-    <div
-      class="p-4 border-b border-neutral-700/30 flex justify-between items-center"
-    >
-      <div class="text-sm font-medium flex items-center gap-2">
-        <img
-          src="assets/icons/bookmark.svg"
-          alt="presets"
-          class="w-4 h-4 opacity-60"
-        />
-        Prompt Presets
-      </div>
-      <button
-        (click)="closePresetsModal()"
-        class="text-neutral-400 hover:text-white transition-colors p-1 hover:bg-neutral-700/30 rounded-md"
-      >
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          ></path>
-        </svg>
-      </button>
-    </div>
-    <div class="p-4 space-y-3">
-      <button
-        *ngIf="!showSavePresetDialog"
-        (click)="showSavePresetDialog = true"
-        class="w-full bg-darkprimary/20 border border-neutral-700/30 px-3 py-2 rounded-lg hover:bg-neutral-700/30 transition-all flex items-center justify-center gap-1.5 text-xs"
-      >
-        <img
-          src="assets/icons/plus.svg"
-          alt="save"
-          class="w-3.5 h-3.5 opacity-60"
-        />
-        Save Current as Preset
-      </button>
-      <div
-        *ngIf="showSavePresetDialog"
-        class="bg-darkprimary/20 border border-neutral-700/30 p-3 rounded-lg space-y-3"
-      >
-        <input
-          [(ngModel)]="newPresetName"
-          placeholder="Preset name..."
-          class="w-full bg-darkprimary/30 border border-neutral-700/30 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500/50"
-        />
-        <div class="flex gap-2 justify-end">
-          <button
-            (click)="showSavePresetDialog = false"
-            class="px-3 py-1.5 rounded-lg hover:bg-neutral-700/30 transition-all text-xs border border-neutral-700/30"
-          >
-            Cancel
-          </button>
-          <button
-            (click)="savePreset()"
-            class="bg-indigo-500/90 px-3 py-1.5 rounded-lg hover:bg-indigo-500 transition-all text-xs"
-          >
-            Save
-          </button>
-        </div>
-      </div>
-      <div class="space-y-1.5 max-h-[300px] overflow-y-auto">
-        <div
-          *ngFor="let preset of presets"
-          class="bg-darkprimary/20 border border-neutral-700/30 px-3 py-2 rounded-lg hover:bg-neutral-700/30 transition-all flex justify-between items-center group text-sm"
-          (click)="loadPreset(preset)"
-        >
-          <span>{{ preset.name }}</span>
-          <button
-            (click)="deletePreset($event, preset.id)"
-            class="text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 p-1 hover:bg-red-500/10 rounded-md"
-          >
-            <img
-              src="assets/icons/trash.svg"
-              alt="delete"
-              class="w-3.5 h-3.5"
-            />
-          </button>
-        </div>
-        <div
-          *ngIf="presets.length === 0"
-          class="text-neutral-400 text-center py-6 text-xs"
-        >
-          No presets saved yet
-        </div>
-      </div>
-    </div>
-  </div>
+	<div
+		class="bg-darkbg border border-neutral-700/30 rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
+		(click)="$event.stopPropagation()"
+	>
+		<div
+			class="p-4 border-b border-neutral-700/30 flex justify-between items-center"
+		>
+			<div class="text-sm font-medium flex items-center gap-2">
+				<img
+					src="assets/icons/bookmark.svg"
+					alt="presets"
+					class="w-4 h-4 opacity-60"
+				/>
+				Prompt Presets
+			</div>
+			<button
+				(click)="closePresetsModal()"
+				class="p-1 hover:bg-neutral-700/30 rounded-md"
+			>
+				<img src="assets/icons/close.svg" alt="close icon" class="w-4 h-4" />
+			</button>
+		</div>
+		<div class="p-4 space-y-3">
+			<button
+				*ngIf="!showSavePresetDialog"
+				(click)="showSavePresetDialog = true"
+				class="w-full bg-darkprimary/20 border border-neutral-700/30 px-3 py-2 rounded-lg hover:bg-neutral-700/30 transition-all flex items-center justify-center gap-1.5 text-xs"
+			>
+				<img
+					src="assets/icons/plus.svg"
+					alt="save"
+					class="w-3.5 h-3.5 opacity-60"
+				/>
+				Save Current as Preset
+			</button>
+			<div
+				*ngIf="showSavePresetDialog"
+				class="bg-darkprimary/20 border border-neutral-700/30 p-3 rounded-lg space-y-3"
+			>
+				<input
+					[(ngModel)]="newPresetName"
+					placeholder="Preset name..."
+					class="w-full bg-darkprimary/30 border border-neutral-700/30 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500/50"
+				/>
+				<div class="flex gap-2 justify-end">
+					<button
+						(click)="showSavePresetDialog = false"
+						class="px-3 py-1.5 rounded-lg hover:bg-neutral-700/30 transition-all text-xs border border-neutral-700/30"
+					>
+						Cancel
+					</button>
+					<button
+						(click)="savePreset()"
+						class="bg-indigo-500/90 px-3 py-1.5 rounded-lg hover:bg-indigo-500 transition-all text-xs"
+					>
+						Save
+					</button>
+				</div>
+			</div>
+			<div class="space-y-1.5 max-h-[300px] overflow-y-auto">
+				<div
+					*ngFor="let preset of presets"
+					class="bg-darkprimary/20 border border-neutral-700/30 px-3 py-2 rounded-lg hover:bg-neutral-700/30 transition-all flex justify-between items-center group text-sm"
+					(click)="loadPreset(preset)"
+				>
+					<span>{{ preset.name }}</span>
+					<button
+						(click)="deletePreset($event, preset.id)"
+						class="text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 p-1 hover:bg-red-500/10 rounded-md"
+					>
+						<img
+							src="assets/icons/trash.svg"
+							alt="delete"
+							class="w-3.5 h-3.5"
+						/>
+					</button>
+				</div>
+				<div
+					*ngIf="presets.length === 0"
+					class="text-neutral-400 text-center py-6 text-xs"
+				>
+					No presets saved yet
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

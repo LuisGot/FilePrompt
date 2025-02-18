@@ -8,22 +8,17 @@
 		<div
 			class="px-6 py-4 border-b border-neutral-700/50 flex justify-between items-center"
 		>
-			<h2 class="text-xl font-semibold text-white flex items-center gap-2">
+			<h2
+				class="text-xl font-semibold text-lightprimary flex items-center gap-2"
+			>
 				<img src="assets/icons/settings.svg" alt="settings" class="w-5 h-5" />
 				Settings
 			</h2>
 			<button
 				(click)="onCancel()"
-				class="text-neutral-300 hover:text-white transition-colors duration-150 p-1 hover:bg-neutral-700/30 rounded-lg"
+				class="p-1 hover:bg-neutral-700/30 rounded-lg"
 			>
-				<svg class="w-5 h-5" fill="none" stroke="#c4cad4" viewBox="0 0 24 24">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M6 18L18 6M6 6l12 12"
-					></path>
-				</svg>
+				<img src="assets/icons/close.svg" alt="close icon" class="w-5 h-5" />
 			</button>
 		</div>
 
@@ -32,11 +27,13 @@
 			<div class="space-y-4">
 				<!-- Model Selection -->
 				<div class="space-y-2">
-					<label class="block text-sm font-medium text-white mb-2">Model</label>
+					<label class="block text-sm font-medium text-lightprimary mb-2"
+						>Model</label
+					>
 					<div class="relative">
 						<select
 							[(ngModel)]="model"
-							class="appearance-none w-full bg-darkprimary/50 rounded-xl px-4 py-2.5 pr-10 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 text-white text-sm transition-all duration-150"
+							class="appearance-none w-full bg-darkprimary/50 rounded-xl px-4 py-2.5 pr-10 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 text-lightprimary text-sm transition-all duration-150"
 						>
 							<option value="" class="bg-darkbg">Select a model</option>
 							<option
@@ -59,7 +56,7 @@
 						type="password"
 						[(ngModel)]="apiKey"
 						placeholder="Enter API key"
-						class="w-full bg-darkprimary/50 rounded-xl px-4 py-2.5 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 placeholder-neutral-400 text-white text-sm transition-all duration-150"
+						class="w-full bg-darkprimary/50 rounded-xl px-4 py-2.5 outline-none focus:outline-none border-2 border-transparent focus:border-indigo-500 placeholder-neutral-400 text-lightprimary text-sm transition-all duration-150"
 					/>
 					<div class="mt-2 text-sm text-neutral-400">
 						<span>
@@ -84,13 +81,13 @@
 		>
 			<button
 				(click)="onCancel()"
-				class="px-4 py-2 rounded-xl hover:bg-neutral-700/50 active:bg-neutral-600/50 transition-all duration-150 text-sm font-medium border border-neutral-700/50 text-white"
+				class="px-4 py-2 rounded-xl hover:bg-neutral-700/50 active:bg-neutral-600/50 transition-all duration-150 text-sm font-medium border border-neutral-700/50 text-lightprimary"
 			>
 				Cancel
 			</button>
 			<button
 				(click)="onSave()"
-				class="bg-indigo-500 text-white px-4 py-2 rounded-xl hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-150 text-sm font-medium"
+				class="bg-indigo-500 text-lightprimary px-4 py-2 rounded-xl hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-150 text-sm font-medium"
 			>
 				Save Settings
 			</button>

@@ -69,12 +69,14 @@ export class AppComponent implements OnInit {
 					this.currentFolderPath = folder;
 					this.loadDirectoryStructure(folder);
 				} else {
-					this.toast.addToast("Folder selection cancelled");
+					this.toast.addToast("Folder selection was cancelled.");
 					this.isLoadingFolder.set(false);
 				}
 			})
-			.catch((error) => {
-				this.toast.addToast("Error selecting folder: " + error);
+			.catch(() => {
+				this.toast.addToast(
+					"An error occurred while selecting the folder. Please try again."
+				);
 				this.isLoadingFolder.set(false);
 			});
 	}
@@ -85,7 +87,7 @@ export class AppComponent implements OnInit {
 			this.isLoadingFolder.set(true);
 			this.loadDirectoryStructure(this.currentFolderPath);
 		} else {
-			this.toast.addToast("No folder selected to reload");
+			this.toast.addToast("No folder is selected for reloading.");
 		}
 	}
 
@@ -96,8 +98,10 @@ export class AppComponent implements OnInit {
 			.then((nodes: FileNode[]) => {
 				this.fileTree.set(nodes);
 			})
-			.catch((error) => {
-				this.toast.addToast("Error loading directory: " + error);
+			.catch(() => {
+				this.toast.addToast(
+					"An error occurred while loading the directory. Please try again."
+				);
 			})
 			.finally(() => {
 				this.isLoadingFolder.set(false);
@@ -112,12 +116,12 @@ export class AppComponent implements OnInit {
 	// Generate and copy prompt based on selected files
 	onCopyPrompt(): void {
 		if (!this.currentFolderPath) {
-			this.toast.addToast("No folder selected");
+			this.toast.addToast("No folder is selected.");
 			return;
 		}
 		const selectedFiles = this.getSelectedFiles();
 		if (selectedFiles.length === 0) {
-			this.toast.addToast("No files selected");
+			this.toast.addToast("Please select at least one file.");
 			return;
 		}
 		this.isCopying.set(true);
@@ -130,11 +134,13 @@ export class AppComponent implements OnInit {
 			)
 			.then((result: boolean) => {
 				if (result) {
-					this.toast.addToast("Copied prompt to clipboard!");
+					this.toast.addToast("Prompt copied to clipboard!");
 				}
 			})
-			.catch((error) => {
-				this.toast.addToast("Error copying to clipboard: " + error);
+			.catch(() => {
+				this.toast.addToast(
+					"An error occurred while copying the prompt. Please try again."
+				);
 			})
 			.finally(() => {
 				this.isCopying.set(false);
@@ -144,7 +150,7 @@ export class AppComponent implements OnInit {
 	// Copy an individual file's content to clipboard
 	onIndividualCopy(file: FileNode): void {
 		if (!this.currentFolderPath) {
-			this.toast.addToast("No folder selected");
+			this.toast.addToast("No folder is selected.");
 			return;
 		}
 		this.tauri
@@ -155,11 +161,13 @@ export class AppComponent implements OnInit {
 			)
 			.then((result: boolean) => {
 				if (result) {
-					this.toast.addToast(`Copied ${file.name}`);
+					this.toast.addToast(`Copied ${file.name} to clipboard!`);
 				}
 			})
-			.catch((error) => {
-				this.toast.addToast("Error copying file: " + error);
+			.catch(() => {
+				this.toast.addToast(
+					"An error occurred while copying the file. Please try again."
+				);
 			});
 	}
 
