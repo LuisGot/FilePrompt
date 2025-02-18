@@ -6,12 +6,12 @@ use ignore::gitignore::{Gitignore, GitignoreBuilder};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use std::collections::BTreeMap;
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 use tauri::api::dialog::FileDialogBuilder;
 use tiktoken_rs::tiktoken::p50k_base;
-use std::collections::BTreeMap;
-use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
 struct FileNode {
@@ -350,7 +350,10 @@ struct TreeNode {
 
 impl TreeNode {
     fn new() -> Self {
-        TreeNode { children: BTreeMap::new(), is_file: false }
+        TreeNode {
+            children: BTreeMap::new(),
+            is_file: false,
+        }
     }
 
     fn insert(&mut self, parts: &[String]) {
@@ -376,7 +379,11 @@ impl TreeNode {
             result.push_str(connector);
             result.push_str(key);
             result.push('\n');
-            let new_prefix = if is_last { format!("{}    ", prefix) } else { format!("{}│   ", prefix) };
+            let new_prefix = if is_last {
+                format!("{}    ", prefix)
+            } else {
+                format!("{}│   ", prefix)
+            };
             result.push_str(&node.to_string_tree(&new_prefix));
         }
         result
@@ -389,7 +396,8 @@ fn build_filetree(folder_path: &str, files: &Vec<FileNodeInput>) -> String {
     for file in files {
         let file_path = Path::new(&file.path);
         let relative = file_path.strip_prefix(folder).unwrap_or(file_path);
-        let parts: Vec<String> = relative.components()
+        let parts: Vec<String> = relative
+            .components()
             .map(|c| c.as_os_str().to_string_lossy().to_string())
             .collect();
         root.insert(&parts);

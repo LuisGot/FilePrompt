@@ -14,6 +14,8 @@
     <instruction>Use clear and concise language in the generated prompt.</instruction>
     <instruction>Ensure that the generated prompt maintains a logical flow and structure.</instruction>
     <instruction>Include a placeholder for the user-code in the format {{files}}.</instruction>
+    <instruction>If the user-input contains a filetree, include a placeholder for the filetree in
+        the format {{filetree}}.</instruction>
     <instruction>The key xml blocks are purpose, instructions, user-instructions and user-code.</instruction>
     <instruction>Purpose defines the high level goal of the prompt. (for example: "You are a
         world-class software engineer... Implement the user-instructions into the user-code...")</instruction>
@@ -26,22 +28,21 @@
         the user-instructions...")</instruction>
     <instruction>Output-format defines the format of the output.</instruction>
     <instruction>User-instructions are custom instructions by the user that should be followed for
-        the user-code like features that should be implemented or error messages that should be
-        fixed. (for example: "Implement a new feature", "Change the primary color of the
+        the user-code (for example: "Implement a new feature", "Change the primary color of the
         frontend to blue", "Fix the error when clicking on the 'Enhance' button")</instruction>
-    <instruction>User-code is the code that the user provides.</instruction>
+    <instruction>User-input is the code and optional filetree that the user provides.</instruction>
     <instruction>Not every section is required, but purpose and instructions are typically
         essential. Create the xml blocks based on the user-input.</instruction>
     <instruction>Dont be confused by the difference of instructions and user-instructions.
         Instructions are the instructions/tipps for the language model to execute the task
-        correctly.
-        User-instructions are the instructions that the user wants to be executed. Look at the
+        correctly. User-instructions are the instructions that the user wants to be executed. Look
+        at the
         examples to understand the difference correctly.
     </instruction>
     <instruction>
         Instructions should never contain a plan on how the user-instructions should be implemented
-        like "Add a new header entry labeled "Users" accompanied by a user icon.", but rather
-        general instructions to improve the output of the language model like
+        like "Add a new header entry labeled 'Users' accompanied by a user icon.", but rather
+        general instructions/tippss to improve the output of the language model like
         "Ensure to adhere to common code principles and best practices..."</instruction>
     <instruction>Instructions are always things that should be taken into account while implementing
         the user-instructions.</instruction>
@@ -51,19 +52,18 @@
     <instruction>Use the examples to understand the structure of the output.</instruction>
     <instruction>The examples are perfectly tailored and optimized how a prompt should look like for
         a given task. Use the examples to ensure a 100% success rate of the prompt.</instruction>
-    <instruction>Your output should be in raw XML format, mirroring the structure of the examples
-        output.</instruction>
+    <instruction>Your output should be in raw XML text format, mirroring the structure of the
+        examples output.</instruction>
     <instruction>The purpose should be short but powerful and clear.</instruction>
     <instruction>The instructions should be extensive, detailed and clear.</instruction>
-    <instruction>The output-format should be a detailed description of the output.</instruction>
+    <instruction>The output-format should be a detailed description how the output should look like.</instruction>
     <instruction>The user-instructions should be the instructions that the user wants to be
         executed.</instruction>
     <instruction>Exclude CDATA sections in your output.</instruction>
-    <instruction>Response exclusively with the desired output text prompt in the output-format, no
-        other text or
-        comments.</instruction>
+    <instruction>Respond exclusively with the desired output text prompt in the output-format, no
+        other text or comments.</instruction>
     <instruction>The output should never be wrapped inside a markdown codeblock or CDATA section.
-        Output only plain text.</instruction>
+        Output only plain xml text.</instruction>
     <instruction>If the user-input is structured like the input-format, use it as is. If it's not,
         infer the purpose, instructions, output-format and user-instructions from the user-input.</instruction>
     <instruction>The goal is to fill in the blanks and best infer the purpose, instructions,
@@ -77,12 +77,14 @@
     <instruction>Use direct, simple language and avoid unnecessary complexity to make the final
         prompt easy to understand.</instruction>
     <instruction>After creating the full prompt, perform a final validation to confirm that all
-        placeholders, instructions, and examples are included, properly formatted, and consistent.</instruction>
+        placeholders, instructions, and examples are included, properly formatted, and consistent
+        and that the response is in the correct output-format.</instruction>
 </instructions>
 
 <input-format>
     The input format normally consists of the task, instructions, and user-code specified
-    by the user with the placeholder "{{files}}".
+    by the user with the placeholder "{{files}}" and optionally a filetree with the placeholder
+    "{{filetree}}".
     the input can vary at any time. If the input does not match the format, take all the information
     from the input to create an ultimate suitable prompt as shown in the examples.</input-format>
 
@@ -99,6 +101,8 @@
                 - The whole frontend should have nice animations.
                 - Improve the whole user experience.
                 - Add a Settings page where the user can configure the app.
+                # Filetree:
+                {{filetree}}
                 # Codebase:
                 {{files}}
             </input>
@@ -151,9 +155,14 @@
     <instruction>Improve the whole user experience of the frontend.</instruction>
     <instruction>Add a Settings page where the user can configure the app.</instruction>
 </user-instructions>
-<user-code>
+<user-input>
+    <user-filetree>
+        {{filetree}}
+    </user-filetree>
+    <user-code>
         {{files}}
-</user-code>
+    </user-code>
+</user-input>
 Your updated codebase:
 
 ]]>
@@ -164,8 +173,7 @@ Your updated codebase:
             <input>
                 # Task:
                 Your task is it to completly refactor the codebase to reduce repitition, fix bugs
-                and
-                improve the codebase.
+                and improve the codebase.
                 # Instructions:
                 You will follow common code principles and best practices to improve the codebase.
                 You will also ensure that the code is well documented and easy to understand.
@@ -259,6 +267,8 @@ Your refactored codebase:
                 'enhance_prompt' missing required key 'args'
                 # Codebase:
                 {{files}}
+                # Filetree:
+                {{filetree}}
             </input>
             <output>
 <![CDATA[
@@ -310,9 +320,14 @@ Your refactored codebase:
     'enhance_prompt' missing required key 'args'
     </instruction>
 </user-instructions>
-<user-code>
-    {{files}}
-</user-code>
+<user-input>
+    <user-code>
+        {{files}}
+    </user-code>
+    <user-filetree>
+        {{filetree}}
+    </user-filetree>
+</user-input>
 Your updated codebase with the error fixed:
 ]]>
         </output>
