@@ -1,5 +1,7 @@
 # FilePrompt
 
+![FilePrompt](./public/FilePrompt.webp)
+
 A modern desktop application that transforms your codebase into customizable prompts for LLM's through an intuitive file explorer and integrated prompt composer.
 
 ## Table of Contents
@@ -64,7 +66,7 @@ FilePrompt lets you easily generate and enhance code prompts from your project f
 - **Backend (Tauri/Rust):**
   - `src-tauri/`  
     Contains the Rust code that integrates with Tauri to provide native functionalities:
-    - **main.rs:** Implements commands for folder selection, file reading, clipboard operations, and prompt generation.
+    - `main.rs`: Implements commands for folder selection, file reading, clipboard operations, and prompt generation.
   - Tauri configuration and build files: `tauri.conf.json`, `Cargo.toml`, and `build.rs`.
 
 **Setup & Running the Application:**
