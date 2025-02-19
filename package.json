@@ -8,6 +8,7 @@
 		"watch": "ng build --watch --configuration development",
 		"tauri": "tauri",
 		"tailwind": "tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css --watch",
+		"build-tailwind": "tailwindcss -i ./src/assets/styles/input.css -o ./src/assets/styles/output.css",
 		"dev": "ng serve"
 	},
 	"private": true,
