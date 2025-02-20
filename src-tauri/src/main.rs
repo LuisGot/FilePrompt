@@ -275,10 +275,9 @@ struct EnhancePromptArgs {
 
 #[tauri::command]
 async fn enhance_prompt(args: EnhancePromptArgs) -> Result<String, String> {
-    let template = fs::read_to_string("src/enhance_prompt.txt")
-        .map_err(|e| format!("Failed to read prompt template: {}", e))?;
-
-    // Replace the placeholder with the user's prompt
+    let template = include_str!("enhance_prompt.txt");
+    
+    // Replace the placeholder with the user's prompt.
     let prompt = template.replace("%%prompt%%", &args.prompt_template);
 
     let client = reqwest::Client::new();
@@ -303,7 +302,6 @@ async fn enhance_prompt(args: EnhancePromptArgs) -> Result<String, String> {
     }
 }
 
-// Add new struct and command for converting prompt
 #[derive(Deserialize)]
 struct ConvertPromptArgs {
     model: String,
@@ -314,11 +312,12 @@ struct ConvertPromptArgs {
 
 #[tauri::command]
 async fn convert_prompt(args: ConvertPromptArgs) -> Result<String, String> {
-    let template = fs::read_to_string("src/convert_prompt.txt")
-        .map_err(|e| format!("Failed to read conversion prompt template: {}", e))?;
+    let template = include_str!("convert_prompt.txt");
+    
     let prompt = template
         .replace("%%format%%", &args.format)
         .replace("%%prompt%%", &args.prompt_template);
+
     let client = reqwest::Client::new();
     let body = serde_json::json!({
         "model": args.model,
