@@ -1,7 +1,5 @@
-<!-- Recursive file tree view template -->
-<ul class="space-y-0.5 bg-darkbg">
+<ul class="space-y-0.5">
 	<li *ngFor="let node of nodes" class="animate-fadeIn">
-		<!-- Folder Node -->
 		<div
 			*ngIf="node.type === 'folder'"
 			class="flex items-center gap-2 cursor-pointer px-2 py-0.5 hover:bg-neutral-700/30 rounded-sm group transition-all duration-200 ease-in-out"
@@ -43,7 +41,6 @@
 			/>
 			<span class="text-sm text-lightprimary">{{ node.name }}</span>
 		</div>
-		<!-- File Node -->
 		<div
 			*ngIf="node.type === 'file'"
 			class="flex items-center justify-between gap-2 px-2 py-0.5 hover:bg-neutral-700/30 rounded-sm group transition-all duration-200 ease-in-out"
@@ -99,7 +96,6 @@
 				</button>
 			</div>
 		</div>
-		<!-- Recursive rendering for folder children -->
 		<div
 			*ngIf="node.type === 'folder' && node.expanded && node.children"
 			class="ml-4 overflow-hidden transition-all duration-300 ease-in-out animate-fadeIn"

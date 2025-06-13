@@ -11,22 +11,19 @@
 		<section
 			id="file-view"
 			[class]="showComposer() ? 'w-1/2' : 'w-full'"
-			class="border-r border-darkprimary p-6 overflow-y-auto h-full min-h-0 transition-all relative"
+			class="border-r border-darkprimary p-6 overflow-y-auto transition-all"
 		>
-			<div *ngIf="isLoadingFolder()" class="h-[calc(100vh-10rem)]">
-				<app-loading-spinner></app-loading-spinner>
-			</div>
-			<div *ngIf="!isLoadingFolder()">
-				<app-file-tree
-					[nodes]="fileTree()"
-					(fileCopy)="onIndividualCopy($event)"
-				></app-file-tree>
-			</div>
+			<app-loading-spinner *ngIf="isLoadingFolder()"></app-loading-spinner>
+			<app-file-tree
+				*ngIf="!isLoadingFolder()"
+				[nodes]="fileTree()"
+				(fileCopy)="onIndividualCopy($event)"
+			></app-file-tree>
 		</section>
 		<section
 			*ngIf="showComposer()"
 			id="prompt-composer"
-			class="w-1/2 p-6 flex flex-col bg-darkbg h-full min-h-0 overflow-hidden"
+			class="w-1/2 flex flex-col bg-darkbg"
 		>
 			<app-prompt-composer
 				[promptTemplate]="promptTemplate"
