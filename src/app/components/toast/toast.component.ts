@@ -10,7 +10,4 @@ import { ToastService } from "../../services/toast.service";
 })
 export class ToastComponent {
 	constructor(public toastService: ToastService) {}
-	remove(toast: string): void {
-		this.toastService.removeToast(toast);
-	}
 }

@@ -40,8 +40,4 @@ export class PresetService {
 		const updatedPresets = presets.filter((preset) => preset.id !== id);
 		localStorage.setItem(this.PRESETS_KEY, JSON.stringify(updatedPresets));
 	}
-
-	getPreset(id: string): PromptPreset | undefined {
-		return this.getPresets().find((preset) => preset.id === id);
-	}
 }

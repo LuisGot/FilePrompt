@@ -9,11 +9,11 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::BTreeMap;
 use std::fs;
-use std::path::{Path};
+use std::path::Path;
 use tauri::WebviewWindow;
 use tiktoken_rs::o200k_base;
 
-use tauri_plugin_dialog::{DialogExt, FilePath}; // Updated import
+use tauri_plugin_dialog::{DialogExt, FilePath};
 
 #[derive(Serialize, Deserialize)]
 struct FileNode {
@@ -27,7 +27,7 @@ struct FileNode {
 fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
     let mut results = Vec::new();
     let repo_root = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from(dir_path));
-    let selected_dir = std::path::Path::new(dir_path);
+    let selected_dir = Path::new(dir_path);
 
     let mut ignore_matchers = Vec::new();
     let mut current = selected_dir;
@@ -36,8 +36,10 @@ fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
         if gitignore_file.exists() {
             let mut builder = GitignoreBuilder::new(current);
             let _ = builder.add(gitignore_file);
-            let matcher = builder.build().unwrap_or_else(|_| Gitignore::empty());
-            ignore_matchers.push((current.to_path_buf(), matcher));
+            ignore_matchers.push((
+                current.to_path_buf(),
+                builder.build().unwrap_or_else(|_| Gitignore::empty()),
+            ));
         }
         if current == repo_root || current.parent().is_none() {
             break;
@@ -46,40 +48,28 @@ fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
     }
 
     if let Ok(entries) = fs::read_dir(dir_path) {
-        for entry in entries.filter_map(Result::ok) {
+        for entry in entries.flatten() {
             let path = entry.path();
-            let mut ignored = false;
-            for (base, matcher) in &ignore_matchers {
-                if let Ok(relative) = path.strip_prefix(base) {
-                    if matcher.matched(relative, path.is_dir()).is_ignore() {
-                        ignored = true;
-                        break;
-                    }
-                }
-            }
-            if ignored {
+            if ignore_matchers.iter().any(|(base, matcher)| {
+                path.strip_prefix(base)
+                    .map(|rel| matcher.matched(rel, path.is_dir()).is_ignore())
+                    .unwrap_or(false)
+            }) {
                 continue;
             }
+
             let filename = entry.file_name().into_string().unwrap_or_default();
             if let Ok(metadata) = entry.metadata() {
-                if metadata.is_dir() {
-                    results.push(FileNode {
-                        node_type: "folder".into(),
-                        name: filename,
-                        path: path.to_string_lossy().to_string(),
-                        children: None,
-                    });
-                } else {
-                    results.push(FileNode {
-                        node_type: "file".into(),
-                        name: filename,
-                        path: path.to_string_lossy().to_string(),
-                        children: None,
-                    });
-                }
+                results.push(FileNode {
+                    node_type: if metadata.is_dir() { "folder" } else { "file" }.into(),
+                    name: filename,
+                    path: path.to_string_lossy().into(),
+                    children: None,
+                });
             }
         }
     }
+
     results.sort_by(|a, b| {
         if a.node_type != b.node_type {
             if a.node_type == "folder" {
@@ -98,7 +88,9 @@ fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
 async fn select_folder(window: WebviewWindow) -> Result<Option<String>, String> {
     let folder = tauri::async_runtime::spawn_blocking(move || {
         let (tx, rx) = std::sync::mpsc::channel();
-        window.dialog().file()
+        window
+            .dialog()
+            .file()
             .set_parent(&window)
             .pick_folder(move |folder: Option<FilePath>| {
                 tx.send(folder).expect("Failed to send folder from dialog");
@@ -118,18 +110,6 @@ async fn get_directory_children(folder_path: String) -> Result<Vec<FileNode>, St
     Ok(fetch_directory_children(&folder_path))
 }
 
-#[tauri::command]
-async fn read_file(file_path: String) -> Result<String, String> {
-    fs::read_to_string(&file_path).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-async fn copy_to_clipboard(text: String) -> Result<bool, String> {
-    let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
-    clipboard.set_text(text).map_err(|e| e.to_string())?;
-    Ok(true)
-}
-
 #[derive(Serialize)]
 struct FileMetrics {
     size: u64,
@@ -141,43 +121,37 @@ struct FileMetrics {
 
 #[tauri::command]
 async fn get_file_metrics(file_paths: Vec<String>) -> Result<Vec<FileMetrics>, String> {
-    let futures_vec = file_paths.into_iter().map(|path| {
+    let tasks = file_paths.into_iter().map(|path| {
         tauri::async_runtime::spawn_blocking(move || -> Result<FileMetrics, String> {
             let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
             let size = metadata.len();
-            let file_metrics = match fs::read_to_string(&path) {
+            match fs::read_to_string(&path) {
                 Ok(content) => {
-                    let line_count = content.lines().count();
-                    let bpe = o200k_base().map_err(|e| e.to_string())?;
-                    let tokens = bpe.encode_with_special_tokens(&content);
-                    let token_count = tokens.len();
-                    FileMetrics {
+                    let tokens = o200k_base()
+                        .map_err(|e| e.to_string())?
+                        .encode_with_special_tokens(&content)
+                        .len();
+                    Ok(FileMetrics {
                         size,
-                        line_count,
-                        token_count,
+                        line_count: content.lines().count(),
+                        token_count: tokens,
                         file_path: path.clone(),
                         is_valid: true,
-                    }
+                    })
                 }
-                Err(_) => FileMetrics {
+                Err(_) => Ok(FileMetrics {
                     size,
                     line_count: 0,
                     token_count: 0,
-                    file_path: path.clone(),
+                    file_path: path,
                     is_valid: false,
-                },
-            };
-            Ok(file_metrics)
+                }),
+            }
         })
     });
-    let results = future::join_all(futures_vec).await;
     let mut metrics = Vec::new();
-    for res in results {
-        match res {
-            Ok(Ok(metric)) => metrics.push(metric),
-            Ok(Err(e)) => return Err(e),
-            Err(e) => return Err(e.to_string()),
-        }
+    for res in future::join_all(tasks).await {
+        metrics.push(res.map_err(|e| e.to_string())??);
     }
     Ok(metrics)
 }
@@ -215,28 +189,28 @@ async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, Stri
             Err(_) => continue,
         };
 
-        let file_path_obj = Path::new(&file.path);
-        let relative_path = file_path_obj
+        let relative_path = Path::new(&file.path)
             .strip_prefix(folder_path_obj)
-            .unwrap_or(file_path_obj);
-        let relative_path_string = relative_path.to_string_lossy().into_owned();
-        let replacements = [
-            ("{{file_name}}", file.name.as_str()),
-            ("{{file_path}}", relative_path_string.as_str()),
-            ("{{file_content}}", content.as_str()),
-        ];
-        let file_output = apply_template(&args.file_template, &replacements);
-        aggregated.push_str(&file_output);
+            .unwrap_or(Path::new(&file.path))
+            .to_string_lossy();
+        aggregated.push_str(&apply_template(
+            &args.file_template,
+            &[
+                ("{{file_name}}", &file.name),
+                ("{{file_path}}", &relative_path),
+                ("{{file_content}}", &content),
+            ],
+        ));
     }
 
-    let filetree_actual_value = build_filetree(&args.folder_path, &args.files);
-    let mut processed_prompt_template = args.prompt_template.clone();
-    if processed_prompt_template.contains("{{filetree}}") {
-        processed_prompt_template = processed_prompt_template.replacen("{{filetree}}", &filetree_actual_value, 1);
-    }
-    let final_output = processed_prompt_template.replacen("{{files}}", &aggregated, 1);
-    let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
-    clipboard
+    let filetree_value = build_filetree(&args.folder_path, &args.files);
+    let final_output = args
+        .prompt_template
+        .replacen("{{filetree}}", &filetree_value, 1)
+        .replacen("{{files}}", &aggregated, 1);
+
+    Clipboard::new()
+        .map_err(|e| e.to_string())?
         .set_text(final_output)
         .map_err(|e| e.to_string())?;
     Ok(true)
@@ -262,14 +236,18 @@ async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
         .strip_prefix(&args.folder_path)
         .unwrap_or(&args.file.path)
         .to_string();
-    let replacements = [
-        ("{{file_name}}", args.file.name.as_str()),
-        ("{{file_path}}", relative.as_str()),
-        ("{{file_content}}", content.as_str()),
-    ];
-    let output = apply_template(&args.file_template, &replacements);
-    let mut clipboard = Clipboard::new().map_err(|e| e.to_string())?;
-    clipboard.set_text(output).map_err(|e| e.to_string())?;
+    let output = apply_template(
+        &args.file_template,
+        &[
+            ("{{file_name}}", &args.file.name),
+            ("{{file_path}}", &relative),
+            ("{{file_content}}", &content),
+        ],
+    );
+    Clipboard::new()
+        .map_err(|e| e.to_string())?
+        .set_text(output)
+        .map_err(|e| e.to_string())?;
     Ok(true)
 }
 
@@ -282,30 +260,28 @@ struct EnhancePromptArgs {
 
 #[tauri::command]
 async fn enhance_prompt(args: EnhancePromptArgs) -> Result<String, String> {
-    let template = include_str!("enhance_prompt.txt");
+    let prompt = include_str!("enhance_prompt.txt").replace("%%prompt%%", &args.prompt_template);
 
-    let prompt = template.replace("%%prompt%%", &args.prompt_template);
-
-    let client = reqwest::Client::new();
-    let body = serde_json::json!({
-        "model": args.model,
-        "prompt": prompt,
-        "include_reasoning": false
-    });
-    let res = client
-        .post("https://openrouter.ai/api/v1/completions")
-        .header("Authorization", format!("Bearer {}", args.api_key))
-        .header("Content-Type", "application/json")
-        .json(&body)
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-    let json: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
-    if let Some(text) = json["choices"][0]["text"].as_str() {
-        Ok(text.to_string())
-    } else {
-        Err("Invalid response format".into())
-    }
+    serde_json::from_value::<serde_json::Value>(
+        reqwest::Client::new()
+            .post("https://openrouter.ai/api/v1/completions")
+            .header("Authorization", format!("Bearer {}", args.api_key))
+            .header("Content-Type", "application/json")
+            .json(&serde_json::json!({
+                "model": args.model,
+                "prompt": prompt,
+                "include_reasoning": false
+            }))
+            .send()
+            .await
+            .map_err(|e| e.to_string())?
+            .json()
+            .await
+            .map_err(|e| e.to_string())?,
+    )
+    .ok()
+    .and_then(|j| j["choices"][0]["text"].as_str().map(|s| s.to_string()))
+    .ok_or_else(|| "Invalid response format".into())
 }
 
 #[derive(Deserialize)]
@@ -318,32 +294,30 @@ struct ConvertPromptArgs {
 
 #[tauri::command]
 async fn convert_prompt(args: ConvertPromptArgs) -> Result<String, String> {
-    let template = include_str!("convert_prompt.txt");
-    
-    let prompt = template
+    let prompt = include_str!("convert_prompt.txt")
         .replace("%%format%%", &args.format)
         .replace("%%prompt%%", &args.prompt_template);
 
-    let client = reqwest::Client::new();
-    let body = serde_json::json!({
-        "model": args.model,
-        "prompt": prompt,
-        "include_reasoning": false
-    });
-    let res = client
-        .post("https://openrouter.ai/api/v1/completions")
-        .header("Authorization", format!("Bearer {}", args.api_key))
-        .header("Content-Type", "application/json")
-        .json(&body)
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-    let json: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
-    if let Some(text) = json["choices"][0]["text"].as_str() {
-        Ok(text.to_string())
-    } else {
-        Err("Invalid response format".into())
-    }
+    serde_json::from_value::<serde_json::Value>(
+        reqwest::Client::new()
+            .post("https://openrouter.ai/api/v1/completions")
+            .header("Authorization", format!("Bearer {}", args.api_key))
+            .header("Content-Type", "application/json")
+            .json(&serde_json::json!({
+                "model": args.model,
+                "prompt": prompt,
+                "include_reasoning": false
+            }))
+            .send()
+            .await
+            .map_err(|e| e.to_string())?
+            .json()
+            .await
+            .map_err(|e| e.to_string())?,
+    )
+    .ok()
+    .and_then(|j| j["choices"][0]["text"].as_str().map(|s| s.to_string()))
+    .ok_or_else(|| "Invalid response format".into())
 }
 
 #[derive(Default)]
@@ -353,56 +327,44 @@ struct TreeNode {
 }
 
 impl TreeNode {
-    fn new() -> Self {
-        TreeNode {
-            children: BTreeMap::new(),
-            is_file: false,
-        }
-    }
-
     fn insert(&mut self, parts: &[String]) {
-        if parts.is_empty() {
-            return;
-        }
-        let head = &parts[0];
-        let node = self.children.entry(head.clone()).or_insert(TreeNode::new());
-        if parts.len() == 1 {
-            node.is_file = true;
-        } else {
-            node.insert(&parts[1..]);
+        if let Some((head, tail)) = parts.split_first() {
+            let node = self.children.entry(head.clone()).or_insert_with(TreeNode::default);
+            if tail.is_empty() {
+                node.is_file = true;
+            } else {
+                node.insert(tail);
+            }
         }
     }
 
     fn to_string_tree(&self, prefix: &str) -> String {
         let mut result = String::new();
-        let count = self.children.len();
         for (i, (key, node)) in self.children.iter().enumerate() {
-            let is_last = i == count - 1;
-            let connector = if is_last { "└── " } else { "├── " };
+            let connector = if i + 1 == self.children.len() { "└── " } else { "├── " };
             result.push_str(prefix);
             result.push_str(connector);
             result.push_str(key);
             result.push('\n');
-            let new_prefix = if is_last {
-                format!("{}    ", prefix)
-            } else {
-                format!("{}│   ", prefix)
-            };
-            result.push_str(&node.to_string_tree(&new_prefix));
+            result.push_str(&node.to_string_tree(&format!(
+                "{}{}",
+                prefix,
+                if connector.starts_with('└') { "    " } else { "│   " }
+            )));
         }
         result
     }
 }
 
-fn build_filetree(folder_path: &str, files: &Vec<FileNodeInput>) -> String {
-    let mut root = TreeNode::new();
+fn build_filetree(folder_path: &str, files: &[FileNodeInput]) -> String {
+    let mut root = TreeNode::default();
     let folder = Path::new(folder_path);
     for file in files {
-        let file_path = Path::new(&file.path);
-        let relative = file_path.strip_prefix(folder).unwrap_or(file_path);
-        let parts: Vec<String> = relative
+        let parts: Vec<String> = Path::new(&file.path)
+            .strip_prefix(folder)
+            .unwrap_or_else(|_| Path::new(&file.path))
             .components()
-            .map(|c| c.as_os_str().to_string_lossy().to_string())
+            .map(|c| c.as_os_str().to_string_lossy().into_owned())
             .collect();
         root.insert(&parts);
     }
@@ -413,12 +375,10 @@ fn build_filetree(folder_path: &str, files: &Vec<FileNodeInput>) -> String {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_dialog::init())   // 🆕 register dialog plugin
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             select_folder,
             get_directory_children,
-            read_file,
-            copy_to_clipboard,
             generate_and_copy_prompt,
             copy_file,
             get_file_metrics,

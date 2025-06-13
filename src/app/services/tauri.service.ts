@@ -13,14 +13,6 @@ export class TauriService {
 		return invoke("get_directory_children", { folderPath });
 	}
 
-	readFile(filePath: string): Promise<string> {
-		return invoke("read_file", { filePath });
-	}
-
-	copyToClipboard(text: string): Promise<void> {
-		return invoke("copy_to_clipboard", { text });
-	}
-
 	generateAndCopyPrompt(
 		folderPath: string,
 		files: { name: string; path: string }[],
@@ -42,14 +34,6 @@ export class TauriService {
 		});
 	}
 
-	getTokenCount(filePath: string): Promise<number> {
-		return invoke("get_token_count", { filePath });
-	}
-
-	getTokenCountFromString(content: string): Promise<number> {
-		return invoke("get_token_count_from_string", { content });
-	}
-
 	getFileMetrics(filePaths: string[]): Promise<any> {
 		return invoke("get_file_metrics", { filePaths });
 	}
@@ -59,12 +43,8 @@ export class TauriService {
 		apiKey: string,
 		promptTemplate: string
 	): Promise<string> {
-		return await invoke("enhance_prompt", {
-			args: {
-				model,
-				api_key: apiKey,
-				prompt_template: promptTemplate,
-			},
+		return invoke("enhance_prompt", {
+			args: { model, api_key: apiKey, prompt_template: promptTemplate },
 		});
 	}
 
@@ -74,13 +54,8 @@ export class TauriService {
 		promptTemplate: string,
 		format: string
 	): Promise<string> {
-		return await invoke("convert_prompt", {
-			args: {
-				model,
-				api_key: apiKey,
-				prompt_template: promptTemplate,
-				format,
-			},
+		return invoke("convert_prompt", {
+			args: { model, api_key: apiKey, prompt_template: promptTemplate, format },
 		});
 	}
 }
