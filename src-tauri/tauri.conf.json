@@ -1,41 +1,36 @@
 {
-	"$schema": "https://schema.tauri.app/config/1",
-	"build": {
-		"beforeDevCommand": "npm run start",
-		"beforeBuildCommand": "npm run build-tailwind && npm run build",
-		"devPath": "http://localhost:1420",
-		"distDir": "../dist/fileprompt/browser"
-	},
-	"package": {
-		"productName": "FilePrompt",
-		"version": "0.1.0"
-	},
-	"tauri": {
-		"allowlist": {
-			"all": false,
-			"shell": { "all": false, "open": true },
-			"dialog": { "all": true }
-		},
-		"windows": [
-			{
-				"title": "FilePrompt",
-				"width": 800,
-				"height": 600,
-				"maximized": true
-			}
-		],
-		"security": { "csp": null },
-		"bundle": {
-			"active": true,
-			"targets": "all",
-			"identifier": "com.fileprompt.app",
-			"icon": [
-				"icons/32x32.png",
-				"icons/128x128.png",
-				"icons/128x128@2x.png",
-				"icons/icon.icns",
-				"icons/icon.ico"
-			]
-		}
-	}
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "FilePrompt",
+  "version": "0.1.1",
+  "identifier": "com.fileprompt.app",
+  "build": {
+    "beforeDevCommand": "npm run start",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build-tailwind && npm run build",
+    "frontendDist": "../dist/fileprompt/browser"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "FilePrompt",
+        "width": 800,
+        "height": 600,
+        "maximized": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
 }

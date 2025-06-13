@@ -38,23 +38,18 @@ export class FileTreeComponent implements OnChanges {
 
 	constructor(private tauri: TauriService) {}
 
-	// Return true if file node is valid text (i.e. not blocked)
 	isTextFile(node: FileNode): boolean {
 		if (node.validText === false) return false;
 		const extension = node.name.toLowerCase().slice(node.name.lastIndexOf("."));
 		return !extension || !BLOCKED_FILE_EXTENSIONS.includes(extension);
 	}
 
-	// When nodes change, load missing metrics
-	ngOnChanges(changes: SimpleChanges): void {
+	async ngOnChanges(changes: SimpleChanges): Promise<void> {
 		if (changes["nodes"]) {
-			(async () => {
-				await this.loadFileMetrics(this.nodes);
-			})();
+			await this.loadFileMetrics(this.nodes);
 		}
 	}
 
-	// Recursively collect file nodes missing metrics
 	private collectFileNodes(nodes: FileNode[]): FileNode[] {
 		let results: FileNode[] = [];
 		for (const node of nodes) {
@@ -74,7 +69,6 @@ export class FileTreeComponent implements OnChanges {
 		return results;
 	}
 
-	// Load file metrics (size, line count, token count) concurrently
 	private async loadFileMetrics(nodes: FileNode[]): Promise<void> {
 		const fileNodes = this.collectFileNodes(nodes);
 		if (!fileNodes.length) return;
@@ -95,7 +89,6 @@ export class FileTreeComponent implements OnChanges {
 		}
 	}
 
-	// Toggle folder expansion and load children if needed
 	async toggleFolder(node: FileNode): Promise<void> {
 		node.expanded = !node.expanded;
 		if (node.expanded && (!node.children || node.children.length === 0)) {
@@ -108,14 +101,12 @@ export class FileTreeComponent implements OnChanges {
 		}
 	}
 
-	// Emit file copy event for valid text files
 	onFileCopy(node: FileNode): void {
 		if (this.isTextFile(node)) {
 			this.fileCopy.emit(node);
 		}
 	}
 
-	// Toggle folder selection and update children recursively
 	onFolderSelect(node: FileNode, checked: boolean): void {
 		node.selected = checked;
 		if (checked) {
@@ -125,7 +116,6 @@ export class FileTreeComponent implements OnChanges {
 		}
 	}
 
-	// Recursively load and select nested children
 	private async loadAndSelectAllChildren(node: FileNode): Promise<void> {
 		if (!node.children || node.children.length === 0) {
 			try {
@@ -148,7 +138,6 @@ export class FileTreeComponent implements OnChanges {
 		}
 	}
 
-	// Recursively update selection state for children nodes
 	private updateChildrenSelection(nodes: FileNode[], checked: boolean): void {
 		for (const node of nodes) {
 			node.selected = checked;

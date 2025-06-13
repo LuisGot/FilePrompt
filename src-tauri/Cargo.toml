@@ -7,20 +7,24 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "fileprompt_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
 [build-dependencies]
-tauri-build = { version = "1", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "dialog-all", "shell-open"] }
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-rfd = "0.10"          # add an appropriate version for rfd
-arboard = "1.2"       # add an appropriate version for arboard
-tiktoken-rs = "0.1"  # use the appropriate version
-futures = "0.3"       # add futures dependency
+arboard = "3"
+futures = "0.3"
 ignore = "0.4"
-reqwest = { version = "0.11", features = ["json"] }
-
-[features]
-# This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
-custom-protocol = ["tauri/custom-protocol"]
+reqwest = { version = "0.12", features = ["json"] }
+tiktoken-rs = "0.7.0"

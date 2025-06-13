@@ -62,10 +62,6 @@ export class PromptComposerComponent implements OnInit {
 		localStorage.setItem("promptTemplate", this.localPromptTemplate);
 	}
 
-	onCopyPrompt(): void {
-		this.copyPrompt.emit();
-	}
-
 	savePreset(): void {
 		if (this.newPresetName.trim()) {
 			this.presetService.savePreset(

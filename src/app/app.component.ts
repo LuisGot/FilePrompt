@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from "@angular/core";
+import { Component } from "@angular/core";
 import { signal } from "@angular/core";
 import { HeaderComponent } from "./components/header/header.component";
 import {
@@ -27,7 +27,7 @@ import { SettingsModalComponent } from "./components/settings-modal/settings-mod
 	],
 	templateUrl: "./app.component.html",
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
 	fileTemplate = signal<string>(
 		localStorage.getItem("fileTemplate") ||
 			"File: {{file_name}}\nPath: {{file_path}}\nContent:\n{{file_content}}\n\n"
@@ -43,23 +43,14 @@ export class AppComponent implements OnInit {
 	isLoadingFolder = signal<boolean>(false);
 
 	constructor(
-		@Inject(TauriService) private tauri: TauriService,
-		@Inject(ToastService) private toast: ToastService
+		private tauri: TauriService,
+		private toast: ToastService
 	) {}
 
-	ngOnInit(): void {}
-
-	// Open settings modal
 	onOpenSettings(): void {
 		this.showSettings.set(true);
 	}
 
-	// Close settings modal
-	onCloseSettings(): void {
-		this.showSettings.set(false);
-	}
-
-	// Initiate folder selection and load its contents
 	onSelectFolder(): void {
 		this.isLoadingFolder.set(true);
 		this.tauri
@@ -81,7 +72,6 @@ export class AppComponent implements OnInit {
 			});
 	}
 
-	// Reload folder contents
 	onReloadFolder(): void {
 		if (this.currentFolderPath) {
 			this.isLoadingFolder.set(true);
@@ -91,7 +81,6 @@ export class AppComponent implements OnInit {
 		}
 	}
 
-	// Load immediate children of the selected folder
 	private loadDirectoryStructure(folder: string): void {
 		this.tauri
 			.getDirectoryChildren(folder)
@@ -108,18 +97,29 @@ export class AppComponent implements OnInit {
 			});
 	}
 
-	// Toggle prompt composer visibility
 	onToggleComposer(): void {
 		this.showComposer.update((show) => !show);
 	}
 
-	// Generate and copy prompt based on selected files
 	onCopyPrompt(): void {
 		if (!this.currentFolderPath) {
 			this.toast.addToast("No folder is selected.");
 			return;
 		}
-		const selectedFiles = this.getSelectedFiles();
+
+		const selectedFiles: { name: string; path: string }[] = [];
+		const collectFiles = (nodes: FileNode[]): void => {
+			for (const node of nodes) {
+				if (node.type === "file" && node.selected) {
+					selectedFiles.push({ name: node.name, path: node.path });
+				}
+				if (node.children) {
+					collectFiles(node.children);
+				}
+			}
+		};
+		collectFiles(this.fileTree());
+
 		if (selectedFiles.length === 0) {
 			this.toast.addToast("Please select at least one file.");
 			return;
@@ -147,7 +147,6 @@ export class AppComponent implements OnInit {
 			});
 	}
 
-	// Copy an individual file's content to clipboard
 	onIndividualCopy(file: FileNode): void {
 		if (!this.currentFolderPath) {
 			this.toast.addToast("No folder is selected.");
@@ -169,32 +168,5 @@ export class AppComponent implements OnInit {
 					"An error occurred while copying the file. Please try again."
 				);
 			});
-	}
-
-	// Update file template
-	onFileTemplateChange(newTemplate: string): void {
-		this.fileTemplate.set(newTemplate);
-	}
-
-	// Update prompt template
-	onPromptTemplateChange(newTemplate: string): void {
-		this.promptTemplate.set(newTemplate);
-	}
-
-	// Recursively collect selected file nodes
-	getSelectedFiles(): { name: string; path: string }[] {
-		const selectedFiles: { name: string; path: string }[] = [];
-		const collectFiles = (nodes: FileNode[]): void => {
-			nodes.forEach((node) => {
-				if (node.type === "file" && node.selected) {
-					selectedFiles.push({ name: node.name, path: node.path });
-				}
-				if (node.children) {
-					collectFiles(node.children);
-				}
-			});
-		};
-		collectFiles(this.fileTree());
-		return selectedFiles;
 	}
 }

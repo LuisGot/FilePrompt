@@ -2,16 +2,9 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 
-export interface ModelPricing {
-	prompt: number;
-	completion: number;
-}
-
 export interface Model {
 	id: string;
 	name: string;
-	description: string;
-	pricing: ModelPricing;
 }
 
 export interface ModelsResponse {

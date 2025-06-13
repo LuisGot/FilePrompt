@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 
 @Injectable({
 	providedIn: "root",
@@ -11,14 +11,6 @@ export class TauriService {
 
 	getDirectoryChildren(folderPath: string): Promise<any> {
 		return invoke("get_directory_children", { folderPath });
-	}
-
-	readFile(filePath: string): Promise<string> {
-		return invoke("read_file", { filePath });
-	}
-
-	copyToClipboard(text: string): Promise<void> {
-		return invoke("copy_to_clipboard", { text });
 	}
 
 	generateAndCopyPrompt(
@@ -42,45 +34,28 @@ export class TauriService {
 		});
 	}
 
-	getTokenCount(filePath: string): Promise<number> {
-		return invoke("get_token_count", { filePath });
-	}
-
-	getTokenCountFromString(content: string): Promise<number> {
-		return invoke("get_token_count_from_string", { content });
-	}
-
 	getFileMetrics(filePaths: string[]): Promise<any> {
 		return invoke("get_file_metrics", { filePaths });
 	}
 
-	async enhancePrompt(
+	enhancePrompt(
 		model: string,
 		apiKey: string,
 		promptTemplate: string
 	): Promise<string> {
-		return await invoke("enhance_prompt", {
-			args: {
-				model,
-				api_key: apiKey,
-				prompt_template: promptTemplate,
-			},
+		return invoke("enhance_prompt", {
+			args: { model, api_key: apiKey, prompt_template: promptTemplate },
 		});
 	}
 
-	async convertPrompt(
+	convertPrompt(
 		model: string,
 		apiKey: string,
 		promptTemplate: string,
 		format: string
 	): Promise<string> {
-		return await invoke("convert_prompt", {
-			args: {
-				model,
-				api_key: apiKey,
-				prompt_template: promptTemplate,
-				format,
-			},
+		return invoke("convert_prompt", {
+			args: { model, api_key: apiKey, prompt_template: promptTemplate, format },
 		});
 	}
 }

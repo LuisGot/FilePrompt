@@ -1,11 +1,10 @@
-<!-- Header with button controls -->
 <header
 	class="bg-darkprimary border-b border-neutral-700 flex justify-between items-center px-4 py-2 sticky top-0 z-50 select-none"
 >
 	<div class="flex items-center gap-4">
 		<div class="flex gap-2">
 			<button
-				(click)="onSelectFolder()"
+				(click)="selectFolder.emit()"
 				class="bg-darkprimary/50 px-4 py-2 rounded-xl hover:bg-neutral-700/50 active:bg-neutral-600/50 transition-all duration-150 flex items-center gap-2 text-sm border border-neutral-700/50"
 			>
 				<img
@@ -16,7 +15,7 @@
 				<span>Select Folder</span>
 			</button>
 			<button
-				(click)="onReloadFolder()"
+				(click)="reloadFolder.emit()"
 				class="bg-darkprimary/50 px-4 py-2 rounded-xl hover:bg-neutral-700/50 active:bg-neutral-600/50 transition-all duration-150 flex items-center gap-2 text-sm border border-neutral-700/50"
 			>
 				<img src="assets/icons/reload.svg" alt="reload icon" class="w-4 h-4" />
@@ -31,7 +30,7 @@
 	</div>
 	<div class="flex items-center gap-2">
 		<button
-			(click)="onToggleComposer()"
+			(click)="toggleComposer.emit()"
 			class="bg-darkprimary/50 px-4 py-2 rounded-xl hover:bg-neutral-700/50 active:bg-neutral-600/50 transition-all duration-150 flex items-center gap-2 text-sm border border-neutral-700/50"
 		>
 			<img
@@ -42,7 +41,7 @@
 			<span>{{ showComposer ? "Hide Composer" : "Show Composer" }}</span>
 		</button>
 		<button
-			(click)="onOpenSettings()"
+			(click)="openSettings.emit()"
 			class="bg-darkprimary/50 p-2 rounded-xl hover:bg-neutral-700/50 active:bg-neutral-600/50 transition-all duration-150 border border-neutral-700/50"
 		>
 			<img
