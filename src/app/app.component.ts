@@ -106,7 +106,20 @@ export class AppComponent {
 			this.toast.addToast("No folder is selected.");
 			return;
 		}
-		const selectedFiles = this.getSelectedFiles();
+
+		const selectedFiles: { name: string; path: string }[] = [];
+		const collectFiles = (nodes: FileNode[]): void => {
+			for (const node of nodes) {
+				if (node.type === "file" && node.selected) {
+					selectedFiles.push({ name: node.name, path: node.path });
+				}
+				if (node.children) {
+					collectFiles(node.children);
+				}
+			}
+		};
+		collectFiles(this.fileTree());
+
 		if (selectedFiles.length === 0) {
 			this.toast.addToast("Please select at least one file.");
 			return;
@@ -155,21 +168,5 @@ export class AppComponent {
 					"An error occurred while copying the file. Please try again."
 				);
 			});
-	}
-
-	getSelectedFiles(): { name: string; path: string }[] {
-		const selectedFiles: { name: string; path: string }[] = [];
-		const collectFiles = (nodes: FileNode[]): void => {
-			nodes.forEach((node) => {
-				if (node.type === "file" && node.selected) {
-					selectedFiles.push({ name: node.name, path: node.path });
-				}
-				if (node.children) {
-					collectFiles(node.children);
-				}
-			});
-		};
-		collectFiles(this.fileTree());
-		return selectedFiles;
 	}
 }

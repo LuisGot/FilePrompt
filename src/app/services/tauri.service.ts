@@ -38,7 +38,7 @@ export class TauriService {
 		return invoke("get_file_metrics", { filePaths });
 	}
 
-	async enhancePrompt(
+	enhancePrompt(
 		model: string,
 		apiKey: string,
 		promptTemplate: string
@@ -48,7 +48,7 @@ export class TauriService {
 		});
 	}
 
-	async convertPrompt(
+	convertPrompt(
 		model: string,
 		apiKey: string,
 		promptTemplate: string,
