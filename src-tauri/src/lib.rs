@@ -58,11 +58,10 @@ fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
                 continue;
             }
 
-            let filename = entry.file_name().into_string().unwrap_or_default();
             if let Ok(metadata) = entry.metadata() {
                 results.push(FileNode {
                     node_type: if metadata.is_dir() { "folder" } else { "file" }.into(),
-                    name: filename,
+                    name: entry.file_name().into_string().unwrap_or_default(),
                     path: path.to_string_lossy().into(),
                     children: None,
                 });
@@ -86,7 +85,7 @@ fn fetch_directory_children(dir_path: &str) -> Vec<FileNode> {
 
 #[tauri::command]
 async fn select_folder(window: WebviewWindow) -> Result<Option<String>, String> {
-    let folder = tauri::async_runtime::spawn_blocking(move || {
+    Ok(tauri::async_runtime::spawn_blocking(move || {
         let (tx, rx) = std::sync::mpsc::channel();
         window
             .dialog()
@@ -98,8 +97,8 @@ async fn select_folder(window: WebviewWindow) -> Result<Option<String>, String> 
         rx.recv().map_err(|e| e.to_string()).unwrap_or(None)
     })
     .await
-    .map_err(|e| e.to_string())?;
-    Ok(folder.map(|p| match p {
+    .map_err(|e| e.to_string())?
+    .map(|p| match p {
         FilePath::Path(path_buf) => path_buf.to_string_lossy().to_string(),
         FilePath::Url(uri_string) => uri_string.to_string(),
     }))
@@ -123,22 +122,18 @@ struct FileMetrics {
 async fn get_file_metrics(file_paths: Vec<String>) -> Result<Vec<FileMetrics>, String> {
     let tasks = file_paths.into_iter().map(|path| {
         tauri::async_runtime::spawn_blocking(move || -> Result<FileMetrics, String> {
-            let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
-            let size = metadata.len();
+            let size = fs::metadata(&path).map_err(|e| e.to_string())?.len();
             match fs::read_to_string(&path) {
-                Ok(content) => {
-                    let tokens = o200k_base()
+                Ok(content) => Ok(FileMetrics {
+                    size,
+                    line_count: content.lines().count(),
+                    token_count: o200k_base()
                         .map_err(|e| e.to_string())?
                         .encode_with_special_tokens(&content)
-                        .len();
-                    Ok(FileMetrics {
-                        size,
-                        line_count: content.lines().count(),
-                        token_count: tokens,
-                        file_path: path.clone(),
-                        is_valid: true,
-                    })
-                }
+                        .len(),
+                    file_path: path.clone(),
+                    is_valid: true,
+                }),
                 Err(_) => Ok(FileMetrics {
                     size,
                     line_count: 0,
@@ -184,34 +179,28 @@ async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, Stri
     let mut aggregated = String::new();
     let folder_path_obj = Path::new(&args.folder_path);
     for file in &args.files {
-        let content = match fs::read_to_string(&file.path) {
-            Ok(c) => c,
-            Err(_) => continue,
-        };
-
-        let relative_path = Path::new(&file.path)
-            .strip_prefix(folder_path_obj)
-            .unwrap_or(Path::new(&file.path))
-            .to_string_lossy();
-        aggregated.push_str(&apply_template(
-            &args.file_template,
-            &[
-                ("{{file_name}}", &file.name),
-                ("{{file_path}}", &relative_path),
-                ("{{file_content}}", &content),
-            ],
-        ));
+        if let Ok(content) = fs::read_to_string(&file.path) {
+            let relative_path = Path::new(&file.path)
+                .strip_prefix(folder_path_obj)
+                .unwrap_or(Path::new(&file.path))
+                .to_string_lossy();
+            aggregated.push_str(&apply_template(
+                &args.file_template,
+                &[
+                    ("{{file_name}}", &file.name),
+                    ("{{file_path}}", &relative_path),
+                    ("{{file_content}}", &content),
+                ],
+            ));
+        }
     }
-
-    let filetree_value = build_filetree(&args.folder_path, &args.files);
-    let final_output = args
-        .prompt_template
-        .replacen("{{filetree}}", &filetree_value, 1)
-        .replacen("{{files}}", &aggregated, 1);
 
     Clipboard::new()
         .map_err(|e| e.to_string())?
-        .set_text(final_output)
+        .set_text(args.prompt_template
+            .replacen("{{filetree}}", &build_filetree(&args.folder_path, &args.files), 1)
+            .replacen("{{files}}", &aggregated, 1),
+        )
         .map_err(|e| e.to_string())?;
     Ok(true)
 }
@@ -226,29 +215,28 @@ struct CopyFileArgs {
 
 #[tauri::command]
 async fn copy_file(args: CopyFileArgs) -> Result<bool, String> {
-    let content = match fs::read_to_string(&args.file.path) {
-        Ok(c) => c,
-        Err(_) => return Ok(false),
-    };
-    let relative = args
-        .file
-        .path
-        .strip_prefix(&args.folder_path)
-        .unwrap_or(&args.file.path)
-        .to_string();
-    let output = apply_template(
-        &args.file_template,
-        &[
-            ("{{file_name}}", &args.file.name),
-            ("{{file_path}}", &relative),
-            ("{{file_content}}", &content),
-        ],
-    );
-    Clipboard::new()
-        .map_err(|e| e.to_string())?
-        .set_text(output)
-        .map_err(|e| e.to_string())?;
-    Ok(true)
+    if let Ok(content) = fs::read_to_string(&args.file.path) {
+        let relative = args
+            .file
+            .path
+            .strip_prefix(&args.folder_path)
+            .unwrap_or(&args.file.path);
+        let output = apply_template(
+            &args.file_template,
+            &[
+                ("{{file_name}}", &args.file.name),
+                ("{{file_path}}", relative),
+                ("{{file_content}}", &content),
+            ],
+        );
+        Clipboard::new()
+            .map_err(|e| e.to_string())?
+            .set_text(output)
+            .map_err(|e| e.to_string())?;
+        Ok(true)
+    } else {
+        Ok(false)
+    }
 }
 
 #[derive(Deserialize)]
@@ -258,30 +246,39 @@ struct EnhancePromptArgs {
     prompt_template: String,
 }
 
+#[derive(Deserialize)]
+struct OpenRouterChoice {
+    text: String,
+}
+
+#[derive(Deserialize)]
+struct OpenRouterResponse {
+    choices: Vec<OpenRouterChoice>,
+}
+
 #[tauri::command]
 async fn enhance_prompt(args: EnhancePromptArgs) -> Result<String, String> {
-    let prompt = include_str!("enhance_prompt.txt").replace("%%prompt%%", &args.prompt_template);
+    let mut response: OpenRouterResponse = reqwest::Client::new()
+        .post("https://openrouter.ai/api/v1/completions")
+        .header("Authorization", format!("Bearer {}", args.api_key))
+        .header("Content-Type", "application/json")
+        .json(&serde_json::json!({
+            "model": args.model,
+            "prompt": include_str!("enhance_prompt.txt").replace("%%prompt%%", &args.prompt_template),
+            "include_reasoning": false
+        }))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?
+        .json()
+        .await
+        .map_err(|e| e.to_string())?;
 
-    serde_json::from_value::<serde_json::Value>(
-        reqwest::Client::new()
-            .post("https://openrouter.ai/api/v1/completions")
-            .header("Authorization", format!("Bearer {}", args.api_key))
-            .header("Content-Type", "application/json")
-            .json(&serde_json::json!({
-                "model": args.model,
-                "prompt": prompt,
-                "include_reasoning": false
-            }))
-            .send()
-            .await
-            .map_err(|e| e.to_string())?
-            .json()
-            .await
-            .map_err(|e| e.to_string())?,
-    )
-    .ok()
-    .and_then(|j| j["choices"][0]["text"].as_str().map(|s| s.to_string()))
-    .ok_or_else(|| "Invalid response format".into())
+    if response.choices.is_empty() {
+        Err("Invalid response format: no choices found".into())
+    } else {
+        Ok(response.choices.remove(0).text)
+    }
 }
 
 #[derive(Deserialize)]
@@ -294,30 +291,29 @@ struct ConvertPromptArgs {
 
 #[tauri::command]
 async fn convert_prompt(args: ConvertPromptArgs) -> Result<String, String> {
-    let prompt = include_str!("convert_prompt.txt")
-        .replace("%%format%%", &args.format)
-        .replace("%%prompt%%", &args.prompt_template);
+    let mut response: OpenRouterResponse = reqwest::Client::new()
+        .post("https://openrouter.ai/api/v1/completions")
+        .header("Authorization", format!("Bearer {}", args.api_key))
+        .header("Content-Type", "application/json")
+        .json(&serde_json::json!({
+            "model": args.model,
+            "prompt": include_str!("convert_prompt.txt")
+                .replace("%%format%%", &args.format)
+                .replace("%%prompt%%", &args.prompt_template),
+            "include_reasoning": false
+        }))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?
+        .json()
+        .await
+        .map_err(|e| e.to_string())?;
 
-    serde_json::from_value::<serde_json::Value>(
-        reqwest::Client::new()
-            .post("https://openrouter.ai/api/v1/completions")
-            .header("Authorization", format!("Bearer {}", args.api_key))
-            .header("Content-Type", "application/json")
-            .json(&serde_json::json!({
-                "model": args.model,
-                "prompt": prompt,
-                "include_reasoning": false
-            }))
-            .send()
-            .await
-            .map_err(|e| e.to_string())?
-            .json()
-            .await
-            .map_err(|e| e.to_string())?,
-    )
-    .ok()
-    .and_then(|j| j["choices"][0]["text"].as_str().map(|s| s.to_string()))
-    .ok_or_else(|| "Invalid response format".into())
+    if response.choices.is_empty() {
+        Err("Invalid response format: no choices found".into())
+    } else {
+        Ok(response.choices.remove(0).text)
+    }
 }
 
 #[derive(Default)]
