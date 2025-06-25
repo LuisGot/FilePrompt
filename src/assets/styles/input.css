@@ -22,3 +22,8 @@ html::-webkit-scrollbar-thumb {
   background-color: #6267ec;
   border-radius: 10px;
 }
+
+/* Preserve text color while dragging */
+.cdk-drag-preview {
+  color: #c4cad4;
+}

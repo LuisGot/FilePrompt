@@ -11,7 +11,7 @@ export interface PromptPreset {
 	providedIn: "root",
 })
 export class PresetService {
-	private readonly PRESETS_KEY = "promptPresets";
+    private readonly PRESETS_KEY = "promptPresets";
 
 	getPresets(): PromptPreset[] {
 		const presetsJson = localStorage.getItem(this.PRESETS_KEY);
@@ -35,9 +35,22 @@ export class PresetService {
 		return newPreset;
 	}
 
-	deletePreset(id: string): void {
-		const presets = this.getPresets();
-		const updatedPresets = presets.filter((preset) => preset.id !== id);
-		localStorage.setItem(this.PRESETS_KEY, JSON.stringify(updatedPresets));
-	}
+    deletePreset(id: string): void {
+        const presets = this.getPresets();
+        const updatedPresets = presets.filter((preset) => preset.id !== id);
+        localStorage.setItem(this.PRESETS_KEY, JSON.stringify(updatedPresets));
+    }
+
+    renamePreset(id: string, name: string): void {
+        const presets = this.getPresets();
+        const preset = presets.find((p) => p.id === id);
+        if (preset) {
+            preset.name = name;
+            localStorage.setItem(this.PRESETS_KEY, JSON.stringify(presets));
+        }
+    }
+
+    reorderPresets(presets: PromptPreset[]): void {
+        localStorage.setItem(this.PRESETS_KEY, JSON.stringify(presets));
+    }
 }
