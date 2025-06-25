@@ -1,4 +1,4 @@
-<div class="flex flex-col h-screen overflow-hidden text-lightprimary">
+<div class="flex flex-col h-screen text-lightprimary">
 	<app-header
 		[showComposer]="showComposer()"
 		(selectFolder)="onSelectFolder()"
@@ -7,7 +7,7 @@
 		(openSettings)="onOpenSettings()"
 	></app-header>
 
-	<main class="flex flex-1 min-h-0 overflow-hidden">
+	<main class="flex flex-1 min-h-0">
 		<section
 			id="file-view"
 			[class]="showComposer() ? 'w-1/2' : 'w-full'"

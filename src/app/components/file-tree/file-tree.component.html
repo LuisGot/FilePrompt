@@ -2,7 +2,7 @@
 	<li *ngFor="let node of nodes" class="animate-fadeIn">
 		<div
 			*ngIf="node.type === 'folder'"
-			class="flex items-center gap-2 cursor-pointer px-2 py-0.5 hover:bg-neutral-700/30 rounded-sm group transition-all duration-200 ease-in-out"
+			class="flex items-center gap-2 cursor-pointer px-2 py-0.5 hover:bg-neutral-700/30 rounded-sm group transition-all"
 			(click)="onFolderSelect(node, !node.selected)"
 		>
 			<button
@@ -25,12 +25,12 @@
 					[(ngModel)]="node.selected"
 					(ngModelChange)="onFolderSelect(node, $event)"
 					(click)="$event.stopPropagation()"
-					class="w-3.5 h-3.5 rounded-[4px] border-[1.5px] border-neutral-500 bg-transparent appearance-none cursor-pointer checked:border-indigo-500 checked:bg-indigo-500 hover:border-indigo-400 transition-all duration-150"
+					class="w-3.5 h-3.5 rounded-[4px] border-[1.5px] border-neutral-500 bg-transparent appearance-none cursor-pointer checked:border-indigo-500 checked:bg-indigo-500 hover:border-indigo-400 transition-all"
 				/>
 				<img
 					src="assets/icons/check.svg"
 					alt="check icon"
-					class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 transition-opacity duration-150"
+					class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 transition-opacity"
 					[class.opacity-100]="node.selected"
 				/>
 			</div>
@@ -39,11 +39,11 @@
 				alt="folder icon"
 				class="w-4 h-4"
 			/>
-			<span class="text-sm text-lightprimary">{{ node.name }}</span>
+			<span class="text-sm">{{ node.name }}</span>
 		</div>
 		<div
 			*ngIf="node.type === 'file'"
-			class="flex items-center justify-between gap-2 px-2 py-0.5 hover:bg-neutral-700/30 rounded-sm group transition-all duration-200 ease-in-out"
+			class="flex items-center justify-between gap-2 px-2 py-0.5 hover:bg-neutral-700/30 rounded-sm group transition-all"
 			[class.opacity-50]="!isTextFile(node)"
 			(click)="isTextFile(node) && (node.selected = !node.selected)"
 		>
@@ -55,18 +55,18 @@
 						[(ngModel)]="node.selected"
 						[disabled]="!isTextFile(node)"
 						(click)="$event.stopPropagation()"
-						class="w-3.5 h-3.5 rounded-[4px] border-[1.5px] border-neutral-500 bg-transparent appearance-none cursor-pointer checked:border-indigo-500 checked:bg-indigo-500 hover:border-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+						class="w-3.5 h-3.5 rounded-[4px] border-[1.5px] border-neutral-500 bg-transparent appearance-none cursor-pointer checked:border-indigo-500 checked:bg-indigo-500 hover:border-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
 					/>
 					<img
 						src="assets/icons/check.svg"
 						alt="check icon"
-						class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 transition-opacity duration-150"
+						class="absolute w-2.5 h-2.5 pointer-events-none opacity-0 transition-opacity"
 						[class.opacity-100]="node.selected"
 					/>
 				</div>
 				<img src="assets/icons/file.svg" alt="file icon" class="w-4 h-4" />
 				<span
-					class="text-sm text-lightprimary"
+					class="text-sm"
 					[class.cursor-not-allowed]="!isTextFile(node)"
 					[class.text-neutral-500]="!isTextFile(node)"
 				>
@@ -90,7 +90,7 @@
 				<button
 					(click)="onFileCopy(node); $event.stopPropagation()"
 					[disabled]="!isTextFile(node)"
-					class="bg-darkprimary/50 px-2 py-1 rounded hover:bg-neutral-700 transition-colors duration-150 flex items-center"
+					class="bg-darkprimary/50 px-2 py-1 rounded hover:bg-neutral-700 transition-colors flex items-center"
 				>
 					<img src="assets/icons/copy.svg" alt="copy icon" class="w-4 h-4" />
 				</button>
@@ -98,7 +98,7 @@
 		</div>
 		<div
 			*ngIf="node.type === 'folder' && node.expanded && node.children"
-			class="ml-4 overflow-hidden transition-all duration-300 ease-in-out animate-fadeIn"
+			class="ml-4 overflow-hidden transition-all animate-fadeIn"
 		>
 			<app-file-tree
 				[nodes]="node.children"

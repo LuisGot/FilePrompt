@@ -1,10 +1,8 @@
 import { Component } from "@angular/core";
-import { CommonModule } from "@angular/common";
 
 @Component({
 	selector: "app-loading-spinner",
 	standalone: true,
-	imports: [CommonModule],
 	template: `
 		<div class="flex flex-col items-center justify-center h-full">
 			<div class="relative w-20 h-20">
