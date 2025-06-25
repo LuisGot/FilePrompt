@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
+import { DragDropModule, CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { PresetService, PromptPreset } from "../../services/preset.service";
 import { FileSizePipe } from "../../pipes/file-size.pipe";
 import { AbbreviateNumberPipe } from "../../pipes/abbreviate-number.pipe";
@@ -10,7 +11,7 @@ import { ToastService } from "../../services/toast.service";
 @Component({
 	selector: "app-prompt-composer",
 	standalone: true,
-	imports: [FormsModule, CommonModule, FileSizePipe, AbbreviateNumberPipe],
+    imports: [FormsModule, CommonModule, DragDropModule, FileSizePipe, AbbreviateNumberPipe],
 	templateUrl: "./prompt-composer.component.html",
 })
 export class PromptComposerComponent implements OnInit {
@@ -30,11 +31,13 @@ export class PromptComposerComponent implements OnInit {
 	localPromptTemplate = "";
 	presets: PromptPreset[] = [];
 	showPresetsModal = false;
-	showSavePresetDialog = false;
-	newPresetName = "";
-	isEnhancing = false;
-	isConverting = false;
-	showConvertDropdown = false;
+    showSavePresetDialog = false;
+    newPresetName = "";
+    editingPresetId: string | null = null;
+    editingPresetName = "";
+    isEnhancing = false;
+    isConverting = false;
+    showConvertDropdown = false;
 
 	constructor(
 		private presetService: PresetService,
@@ -83,11 +86,33 @@ export class PromptComposerComponent implements OnInit {
 		this.showPresetsModal = false;
 	}
 
-	deletePreset(event: Event, presetId: string): void {
-		event.stopPropagation();
-		this.presetService.deletePreset(presetId);
-		this.loadPresets();
-	}
+    deletePreset(event: Event, presetId: string): void {
+        event.stopPropagation();
+        this.presetService.deletePreset(presetId);
+        this.loadPresets();
+    }
+
+    startRename(event: Event, preset: PromptPreset): void {
+        event.stopPropagation();
+        this.editingPresetId = preset.id;
+        this.editingPresetName = preset.name;
+    }
+
+    renamePreset(): void {
+        if (this.editingPresetId) {
+            const name = this.editingPresetName.trim();
+            if (name) {
+                this.presetService.renamePreset(this.editingPresetId, name);
+                this.loadPresets();
+            }
+            this.editingPresetId = null;
+        }
+    }
+
+    dropPreset(event: CdkDragDrop<PromptPreset[]>): void {
+        moveItemInArray(this.presets, event.previousIndex, event.currentIndex);
+        this.presetService.reorderPresets(this.presets);
+    }
 
 	openPresetsModal(): void {
 		this.showPresetsModal = true;
