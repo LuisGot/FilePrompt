@@ -174,8 +174,7 @@ struct GeneratePromptArgs {
     prompt_template: String,
 }
 
-#[tauri::command]
-async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, String> {
+fn generate_prompt_string(args: &GeneratePromptArgs) -> Result<String, String> {
     let mut aggregated = String::new();
     let folder_path_obj = Path::new(&args.folder_path);
     for file in &args.files {
@@ -195,14 +194,24 @@ async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, Stri
         }
     }
 
+    Ok(args.prompt_template
+        .replacen("{{filetree}}", &build_filetree(&args.folder_path, &args.files), 1)
+        .replacen("{{files}}", &aggregated, 1))
+}
+
+#[tauri::command]
+async fn generate_and_copy_prompt(args: GeneratePromptArgs) -> Result<bool, String> {
+    let content = generate_prompt_string(&args)?;
     Clipboard::new()
         .map_err(|e| e.to_string())?
-        .set_text(args.prompt_template
-            .replacen("{{filetree}}", &build_filetree(&args.folder_path, &args.files), 1)
-            .replacen("{{files}}", &aggregated, 1),
-        )
+        .set_text(content)
         .map_err(|e| e.to_string())?;
     Ok(true)
+}
+
+#[tauri::command]
+async fn generate_prompt_content(args: GeneratePromptArgs) -> Result<String, String> {
+    generate_prompt_string(&args)
 }
 
 #[derive(Deserialize)]
@@ -376,6 +385,7 @@ pub fn run() {
             select_folder,
             get_directory_children,
             generate_and_copy_prompt,
+            generate_prompt_content,
             copy_file,
             get_file_metrics,
             enhance_prompt,

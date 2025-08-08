@@ -24,6 +24,17 @@ export class TauriService {
 		});
 	}
 
+	generatePromptContent(
+		folderPath: string,
+		files: { name: string; path: string }[],
+		fileTemplate: string,
+		promptTemplate: string
+	): Promise<string> {
+		return invoke("generate_prompt_content", {
+			args: { folderPath, files, fileTemplate, promptTemplate },
+		});
+	}
+
 	copyFile(
 		file: { name: string; path: string },
 		folderPath: string,

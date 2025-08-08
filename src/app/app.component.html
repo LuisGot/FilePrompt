@@ -29,9 +29,11 @@
 				[promptTemplate]="promptTemplate"
 				[fileTemplate]="fileTemplate"
 				[isCopying]="isCopying()"
+				[isDownloading]="isDownloading()"
 				(fileTemplateChange)="fileTemplate.set($event)"
 				(promptTemplateChange)="promptTemplate.set($event)"
 				(copyPrompt)="onCopyPrompt()"
+				(downloadPrompt)="onDownloadPrompt()"
 			></app-prompt-composer>
 		</section>
 	</main>

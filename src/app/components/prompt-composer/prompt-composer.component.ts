@@ -18,12 +18,14 @@ export class PromptComposerComponent implements OnInit {
 	@Input() fileTemplate!: () => string;
 	@Input() promptTemplate!: () => string;
 	@Input() isCopying = false;
+	@Input() isDownloading = false;
 	@Input() aggregatedMetrics?: {
 		size: number;
 		lineCount: number;
 		tokenCount: number;
 	};
 	@Output() copyPrompt = new EventEmitter<void>();
+	@Output() downloadPrompt = new EventEmitter<void>();
 	@Output() fileTemplateChange = new EventEmitter<string>();
 	@Output() promptTemplateChange = new EventEmitter<string>();
 

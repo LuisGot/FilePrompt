@@ -40,6 +40,7 @@ export class AppComponent {
 	fileTree = signal<FileNode[]>([]);
 	currentFolderPath: string | null = null;
 	isCopying = signal<boolean>(false);
+	isDownloading = signal<boolean>(false);
 	isLoadingFolder = signal<boolean>(false);
 
 	constructor(
@@ -144,6 +145,64 @@ export class AppComponent {
 			})
 			.finally(() => {
 				this.isCopying.set(false);
+			});
+	}
+
+	onDownloadPrompt(): void {
+		if (!this.currentFolderPath) {
+			this.toast.addToast("No folder is selected.");
+			return;
+		}
+
+		const selectedFiles: { name: string; path: string }[] = [];
+		const collectFiles = (nodes: FileNode[]): void => {
+			for (const node of nodes) {
+				if (node.type === "file" && node.selected) {
+					selectedFiles.push({ name: node.name, path: node.path });
+				}
+				if (node.children) {
+					collectFiles(node.children);
+				}
+			}
+		};
+		collectFiles(this.fileTree());
+
+		if (selectedFiles.length === 0) {
+			this.toast.addToast("Please select at least one file.");
+			return;
+		}
+		this.isDownloading.set(true);
+		this.tauri
+			.generatePromptContent(
+				this.currentFolderPath,
+				selectedFiles,
+				this.fileTemplate(),
+				this.promptTemplate()
+			)
+			.then((content: string) => {
+				const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+				const url = URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = url;
+				
+				const now = new Date();
+				const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+				link.download = `prompt_${timestamp}.txt`;
+				
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				URL.revokeObjectURL(url);
+				
+				this.toast.addToast("Prompt downloaded successfully!");
+			})
+			.catch(() => {
+				this.toast.addToast(
+					"An error occurred while downloading the prompt. Please try again."
+				);
+			})
+			.finally(() => {
+				this.isDownloading.set(false);
 			});
 	}
 

@@ -141,19 +141,34 @@
 	<div
 		class="border-t border-neutral-700/30 p-4 flex justify-between items-center bg-darkbg/80 backdrop-blur-sm"
 	>
-		<button
-			(click)="copyPrompt.emit()"
-			[disabled]="isCopying"
-			class="px-4 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 transition-all flex items-center gap-1.5 text-xs disabled:opacity-50"
-		>
-			<img
-				*ngIf="!isCopying"
-				src="assets/icons/copy.svg"
-				alt="copy"
-				class="w-3.5 h-3.5"
-			/>
-			<span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
-		</button>
+		<div class="flex items-center gap-2">
+			<button
+				(click)="copyPrompt.emit()"
+				[disabled]="isCopying"
+				class="px-4 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 transition-all flex items-center gap-1.5 text-xs disabled:opacity-50"
+			>
+				<img
+					*ngIf="!isCopying"
+					src="assets/icons/copy.svg"
+					alt="copy"
+					class="w-3.5 h-3.5"
+				/>
+				<span>{{ isCopying ? "Copying..." : "Copy Prompt" }}</span>
+			</button>
+			<button
+				(click)="downloadPrompt.emit()"
+				[disabled]="isDownloading"
+				class="px-4 py-1.5 rounded-lg bg-indigo-500/90 hover:bg-indigo-500 transition-all flex items-center gap-1.5 text-xs disabled:opacity-50"
+			>
+				<img
+					*ngIf="!isDownloading"
+					src="assets/icons/download.svg"
+					alt="download"
+					class="w-3.5 h-3.5"
+				/>
+				<span>{{ isDownloading ? "Downloading..." : "Download" }}</span>
+			</button>
+		</div>
 		<div *ngIf="aggregatedMetrics" class="text-xs text-neutral-400 flex gap-2">
 			<span>{{ aggregatedMetrics.size | fileSize }}</span>
 			<span>•</span>
