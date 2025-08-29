@@ -1,6 +1,23 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Tell Tailwind v4 where to scan for class usage */
+@source "../**/*.{html,ts}";
+
+/* Theme tokens migrated from tailwind.config.js (v3) */
+@theme {
+  /* Colors */
+  --color-darkbg: #212121;
+  --color-darkprimary: #303030;
+  --color-lightprimary: #c4cad4;
+
+  /* Animations */
+  --animate-fadeIn: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
 
 /* Standardized properties for modern browsers */
 html {

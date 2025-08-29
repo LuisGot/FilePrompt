@@ -121,7 +121,7 @@ FilePrompt lets you easily generate and enhance code prompts from your project f
 
 - **Angular:** Configured using `angular.json` and TypeScript configuration files.
 - **Tauri:** Settings managed through `tauri.conf.json` and Rust’s `Cargo.toml`.
-- **Tailwind CSS:** Configured in `tailwind.config.js`, with CSS built from `src/assets/styles/input.css`.
+- **Tailwind CSS (v4):** built from `src/assets/styles/input.css`.
 
 ## Features
 
